@@ -61,6 +61,39 @@ public class AppConfiguration {
     @Value("${app.port}")
     private int appPort;
 
+    @Value("${app.twiloACCOUNT_SID}")
+    private String twiloAccoundSid;
+
+    @Value("${app.twiloAUTH_TOKEN}")
+    private String twiloAuthToken;
+
+    @Value("${app.twilosendNumber}")
+    private String twiloSendNumber;
+
+    public String getTwiloAccoundSid() {
+        return twiloAccoundSid;
+    }
+
+    public void setTwiloAccoundSid(String twiloAccoundSid) {
+        this.twiloAccoundSid = twiloAccoundSid;
+    }
+
+    public String getTwiloAuthToken() {
+        return twiloAuthToken;
+    }
+
+    public void setTwiloAuthToken(String twiloAuthToken) {
+        this.twiloAuthToken = twiloAuthToken;
+    }
+
+    public String getTwiloSendNumber() {
+        return twiloSendNumber;
+    }
+
+    public void setTwiloSendNumber(String twiloSendNumber) {
+        this.twiloSendNumber = twiloSendNumber;
+    }
+
     public String getAppHostNameURL() {
         return appHostNameURL;
     }

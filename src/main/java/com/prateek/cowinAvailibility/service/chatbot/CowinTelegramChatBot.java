@@ -1,5 +1,6 @@
 package com.prateek.cowinAvailibility.service.chatbot;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -51,13 +52,17 @@ public class CowinTelegramChatBot {
     public void loadResource() {
         try {
             alertMap = new HashMap<Long, Alerts>();
+            ObjectMapper mapper = new ObjectMapper();
+
+            InputStream dataStream = getClass().getClassLoader().getResourceAsStream("data.json");
+            InputStream stateStream = getClass().getClassLoader().getResourceAsStream("stateList.json");
+            InputStream cityStream = getClass().getClassLoader().getResourceAsStream("cityList.json");
+
+            this.actionResponseJson = mapper.readValue(dataStream, Map.class);
+            this.stateMap = (List<Map<String, Integer>>) mapper.readValue(stateStream, Map.class).get("states");
+            this.cityMap = (Map<String, Map<String, Integer>>) mapper.readValue(cityStream, Map.class).get("districts");
+
             previousQuestion = new HashMap<Long, String>();
-            this.actionResponseJson = new ObjectMapper().readValue(new ClassPathResource("data.json").getFile(),
-                    Map.class);
-            this.stateMap = ((Map<String, List<Map<String, Integer>>>) new ObjectMapper()
-                    .readValue(new ClassPathResource("stateList.json").getFile(), Map.class)).get("states");
-            this.cityMap = ((Map<String, Map<String, Map<String, Integer>>>) (new ObjectMapper()
-                    .readValue(new ClassPathResource("cityList.json").getFile(), Map.class))).get("districts");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -69,6 +74,8 @@ public class CowinTelegramChatBot {
         messageText = messageText.trim().toLowerCase();
 
         String response = actionResponseJson.get(messageText);
+        log.debug("Getting mapping for " + messageText + " - " + response);
+
         List<String> responseList = new ArrayList<>();
         Alerts alert = this.alertMap.get(chatId);
 

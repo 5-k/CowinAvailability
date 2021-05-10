@@ -57,7 +57,10 @@ public class TelegramSlotPoller extends TelegramLongPollingBot {
 
             List<String> response = cowinTelegramChatBot.getResponseForMessage(messageText,
                     update.getMessage().getChatId());
+            log.debug("Got Message for the input - " + messageText);
+
             String chatId = String.valueOf(update.getMessage().getChatId());
+            log.debug("response --> " + response);
             for (int i = 0; i < response.size(); i++) {
                 sendResponse(chatId, response.get(i), true, false);
             }

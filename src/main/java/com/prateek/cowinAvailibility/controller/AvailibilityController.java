@@ -21,9 +21,10 @@ public class AvailibilityController {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
+    @SuppressWarnings("unchecked")
     @RequestMapping(value = "/app/availability/district/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAvlByDistrictId(@PathVariable int id) {
-        log.info("Rest to avl by district id for id " + id);
+        log.info("Rest to availability by district id for id " + id);
 
         try {
             return new ResponseEntity(service.checkAvlByDistrict(id), HttpStatus.OK);
@@ -34,9 +35,10 @@ public class AvailibilityController {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @RequestMapping(value = "/app/availability/pincode/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAvlByPinCode(@PathVariable int id) {
-        log.info("Rest to avl by pincode id for id " + id);
+        log.info("Rest to getAvlByPinCode by pincode id for id " + id);
 
         try {
             return new ResponseEntity(service.checkByPinCode(id), HttpStatus.OK);
@@ -47,9 +49,10 @@ public class AvailibilityController {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @RequestMapping(value = "/app/availability/Alert/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> fetchAlertData(@PathVariable int id) {
-        log.info("Rest to fetch alerts by id " + id);
+        log.info("Refresh /app/availability/Alert/" + id);
 
         try {
             service.refreshAvl(id);

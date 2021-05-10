@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import com.prateek.cowinAvailibility.configuration.AppConfiguration;
 import com.prateek.cowinAvailibility.dto.cowinResponse.AvlResponse;
 import com.prateek.cowinAvailibility.entity.Alerts;
 import com.prateek.cowinAvailibility.service.chatbot.TelegramSlotPoller;
@@ -19,9 +20,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class NotificationService {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-    public static final String ACCOUNT_SID = "AC822a84a4f6ca0ff92bc2146b8dba45b5";
-    public static final String AUTH_TOKEN = "f93c93e4254cce6ab4bcb7c686e71394";
-    public static final String sendNumber = "+16815006712";
+
+    @Autowired
+    private AppConfiguration appConfiguration;
 
     @Autowired
     private EmailServce emailServce;
@@ -31,28 +32,29 @@ public class NotificationService {
 
     public String sendWhatsAppMessage(Alerts alert, Set<AvlResponse> avlResponseList) {
 
-        log.info("Initiating Whatsapp Message");
+        log.info("Initiating Whatsapp Message for Alert " + alert.toString());
         return splitSendMessage(alert, avlResponseList, true);
     }
 
     public String sendTestMessage(Alerts alert, Set<AvlResponse> avlResponseList) {
-        log.info("Initiating Text Message");
+        log.info("Initiating Text Message for Alert " + alert.toString());
         return splitSendMessage(alert, avlResponseList, false);
     }
 
     public String sendEmail(Alerts alert, Set<AvlResponse> avlResponseList) {
+        log.info("Initiating Email for Alert " + alert.toString());
         emailServce.sendEmail(alert, avlResponseList);
         return "";
     }
 
     public String sendTelegramMessage(Alerts alert, Set<AvlResponse> avlResponseList) {
         telegramService.sendVaccineUpdates(alert, avlResponseList);
-        return "";
+        return "0";
     }
 
     public String sendTelegramUpdate(Alerts alert, String data) {
         telegramService.sendVaccineUpdates(alert, data);
-        return "";
+        return "0";
     }
 
     private String splitSendMessage(Alerts alert, Set<AvlResponse> avlResponseList, boolean isWhatsapp) {
@@ -91,10 +93,11 @@ public class NotificationService {
             prefix = "whatsapp:";
         }
 
-        Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
+        Twilio.init(appConfiguration.getTwiloAccoundSid(), appConfiguration.getTwiloAuthToken());
 
         Message message = Message.creator(new com.twilio.type.PhoneNumber(prefix + alert.getPhoneNumber()),
-                new com.twilio.type.PhoneNumber(prefix + sendNumber), whatsAppMessage).create();
+                new com.twilio.type.PhoneNumber(prefix + appConfiguration.getTwiloSendNumber()), whatsAppMessage)
+                .create();
 
         log.info("Message Send for Alert " + alert.toString() + " with SID: " + message.getSid());
         log.debug(message.getAccountSid() + "-" + message.getApiVersion() + "-" + message.getPrice() + "-"

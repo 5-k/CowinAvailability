@@ -28,7 +28,6 @@ import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -63,17 +62,29 @@ public class CheckAvailivbilityService {
         this.checkByDistrict = this.appConfiguration.getCheckByDistrictURL();
     }
 
-    // @Scheduled(cron = "0 0/1 * * * *")
     @Scheduled(cron = "0 * * * * *")
     @Async
     public void checkContiniousAVL() {
-        List<Alerts> alerts = alertRepo.findByActiveTrue();
         log.info("Cron Job to check avl");
+        List<Alerts> alerts = alertRepo.findByActiveTrue();
+
+        if (null == alerts || alerts.size() == 0) {
+            log.warn("No Alerts Setup, return empty ");
+            return;
+        }
+
+        log.warn("Cron running for Alert count: " + alerts.size());
 
         for (int i = 0; i < alerts.size(); i++) {
             Alerts alert = alerts.get(i);
+            log.debug("Running for Alert: " + alert.toString());
+
             CowinResponse response = getResponseForAlert(alert);
+            log.debug("Got response from cowin");
+
             Set<AvlResponse> avlResponseList = processResponse(alert, response);
+            log.warn("List AvlResponse size = " + avlResponseList.size());
+
             if (avlResponseList.size() > 0) {
                 notifyUsers(alert, avlResponseList);
             } else {
@@ -143,23 +154,26 @@ public class CheckAvailivbilityService {
 
     private void notifyUsers(Alerts alert, Set<AvlResponse> avlResponseList) {
         List<Notifications> notifications = notificationsRepo.findByAlertId(alert.getId());
+
         if (null == notifications) {
+            log.debug("No Notification found for alert id : " + alert.getId());
             notifications = new ArrayList<>();
         }
+
         Collections.sort(notifications);
         Date currentDate = new Date();
-        int count = 0;
+        int notificationSentToday = 0;
 
         for (int i = 0; i < notifications.size(); i++) {
             Notifications notification = notifications.get(i);
             if (notification.getCreatedAt().getDate() == currentDate.getDate()
                     && notification.getCreatedAt().getMonth() == currentDate.getMonth()
                     && notification.getCreatedAt().getYear() == currentDate.getYear()) {
-                count++;
+                notificationSentToday++;
             }
         }
 
-        if (count >= this.appConfiguration.getMaxNotificationPerAlertPerDay()) {
+        if (notificationSentToday >= this.appConfiguration.getMaxNotificationPerAlertPerDay()) {
             log.info("Already 2 notification issued to this mobile number:  for alert " + alert.toString()
                     + " Not issuing current one");
             return;
@@ -178,7 +192,7 @@ public class CheckAvailivbilityService {
 
     private void notify(Alerts alert, Set<AvlResponse> avlResponseList, int notificationType) {
         String cost = "";
-
+        log.info("Notifaction for Alert for notification type: " + notificationType);
         switch (notificationType) {
 
             case 0:
@@ -244,6 +258,7 @@ public class CheckAvailivbilityService {
         }
 
         url = url.replace("{dateVal}", formattedDate);
+        log.info("Initiaing API Call: " + url);
         ResponseEntity<CowinResponse> response = restTemplate.exchange(url, HttpMethod.GET, entity,
                 CowinResponse.class);
 

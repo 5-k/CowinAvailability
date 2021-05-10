@@ -1,5 +1,7 @@
 package com.prateek.cowinAvailibility.dto;
 
+import java.util.Date;
+
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +30,24 @@ public class AlertDTO {
     private boolean isPinCodeSearch;
     private String notificationType; // 0 Whatsapp, 1 sms, 2 Email, 3 Telegram {Comma Seperated List Expected}
     private String emailAddress;
+    private Date createdAt;
+    private Date modifiedAt;
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getModifiedAt() {
+        return modifiedAt;
+    }
+
+    public void setModifiedAt(Date modifiedAt) {
+        this.modifiedAt = modifiedAt;
+    }
 
     public String getEmailAddress() {
         return emailAddress;

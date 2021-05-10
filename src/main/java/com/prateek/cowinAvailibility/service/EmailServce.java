@@ -1,12 +1,10 @@
 package com.prateek.cowinAvailibility.service;
 
-import java.net.InetAddress;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
 
 import javax.mail.Message;
-import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
@@ -16,30 +14,28 @@ import com.prateek.cowinAvailibility.configuration.AppConfiguration;
 import com.prateek.cowinAvailibility.dto.cowinResponse.AvlResponse;
 import com.prateek.cowinAvailibility.dto.cowinResponse.CowinResponseSessions;
 import com.prateek.cowinAvailibility.entity.Alerts;
-import com.prateek.cowinAvailibility.utility.Utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EmailServce {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final String mainMessage = "<div id=\":1cv\" class=\"Am Al editable LW-avf tS-tW tS-tY\" hidefocus=\"true\" aria-label=\"Message Body\" g_editable=\"true\" role=\"textbox\" aria-multiline=\"true\" contenteditable=\"true\" tabindex=\"1\" style=\"direction: ltr; min-height: 173px;\" itacorner=\"6,7:1,1,0,0\" spellcheck=\"true\">Hi There,<div><br></div><div>This is in reference with the alert setup by you mentioned below:</div><div><br></div>"
-            + "<div><b>Alert </b>-&nbsp;${Alert}</div><div><br></div>"
-            + "<div><b>Vaccine Availability:&nbsp;Yes</b><br clear=\"all\"><div><br></div><div><div></div>"
-            + "${AllVaccinationDetails}" + "<div><br></div>" + "</div><div><br></div>"
+            + "<div><b>Alert </b>-&nbsp;${Alert}</div>------------------------------------<div><br></div>"
+            + "<br></div><div><div></div>" + "${AllVaccinationDetails}" + "<div><br></div>" + "</div><div><br></div>"
             + "<div>To disable all alerts ,&nbsp;<a href=\"${disableAlertURL}\">Click Here</a></div><div><br></div>"
             + "<div>Get Vaccinated soon&nbsp;<img src=\"//ssl.gstatic.com/mail/emoji/v7/png48/emoji_u1f60e.png\" alt=\"\" goomoji=\"1f60e\" data-goomoji=\"1f60e\" style=\"margin: 0px 0.2ex; vertical-align: middle; height: 24px; width: 24px;\"></div>"
             + "<div><br>Regards</div>"
             + "<div><a href=\"https://www.linkedin.com/in/prateek-mishra-61aa4658/\">Connect on Linkedin</a></div>"
             + "</div>";
 
-    private final String vaccinationInfoMessage = "<div>------------------------</div></div>"
-            + "<div>Vaccination Center : ${VaccinationCenter}" + "<div>Vaccine :${VaccineName}</div>"
-            + "<div>Available Vaccine :${SlotAndCount}</div>" + " <div>------------------------<br/></div>";
+    private final String vaccinationInfoMessage = "</div>"
+            + "<div style=\"background-color: \"rgb(243, 243, 243)\"; font-weight: \"bold\" font-style: \"italic\"; color: \"#c27ba0\" \">Vaccination Center : ${VaccinationCenter}"
+            + "<div style=\"font-style: \"italics\"; font-weight:'bold' \" >Vaccine :${VaccineName}</div>"
+            + "<div>Available Vaccine :${SlotAndCount}</div>";
 
     @Autowired
     private AppConfiguration appConfiguration;
@@ -86,7 +82,9 @@ public class EmailServce {
 
     public String getHtmlVaccinationInfo(Alerts alert, Set<AvlResponse> avlResponseList, String disableAlertsURL) {
 
-        String updatedMessage = mainMessage.replace("${Alert}", alert.getName() + " - " + alert.getAge());
+        String heading = "Vaccine Alert for " + alert.getName() + " having age group " + alert.getAge()
+                + "+ listed below:";
+        String updatedMessage = mainMessage.replace("${Alert}", heading);
 
         Iterator<AvlResponse> itr = avlResponseList.iterator();
         StringBuilder vcInfoBuilder = new StringBuilder();
@@ -109,10 +107,16 @@ public class EmailServce {
                     }
 
                     slotsAndCountBuilder.append("<li>");
-                    slotsAndCountBuilder.append("Available Count: ");
+                    slotsAndCountBuilder
+                            .append("<span style=\"background-color: rgb(255, 255, 255); color: \"#bf9000\" \" ");
                     slotsAndCountBuilder.append(session.getAvailable_capacity());
-                    slotsAndCountBuilder.append(" at slot times :");
+                    slotsAndCountBuilder.append("</span>");
+                    slotsAndCountBuilder.append(session.getAvailable_capacity());
+                    slotsAndCountBuilder.append(" at slot time ");
+
+                    slotsAndCountBuilder.append("<span color=\"a64d79\">");
                     slotsAndCountBuilder.append(session.getSlots());
+                    slotsAndCountBuilder.append("</span>");
                     slotsAndCountBuilder.append("</li>");
                 }
 
