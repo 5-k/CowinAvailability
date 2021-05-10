@@ -45,8 +45,13 @@ public class NotificationService {
         return "";
     }
 
-    public String sendVaccineUpdates(Alerts alert, Set<AvlResponse> avlResponseList) {
+    public String sendTelegramMessage(Alerts alert, Set<AvlResponse> avlResponseList) {
         telegramService.sendVaccineUpdates(alert, avlResponseList);
+        return "";
+    }
+
+    public String sendTelegramUpdate(Alerts alert, String data) {
+        telegramService.sendVaccineUpdates(alert, data);
         return "";
     }
 

@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
@@ -27,6 +28,7 @@ import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -54,6 +56,13 @@ public class CheckAvailivbilityService {
     @Autowired
     private NotificationsRepo notificationsRepo;
 
+    @PostConstruct
+    public void PostConstruct() {
+        this.formatter = new SimpleDateFormat(this.appConfiguration.getDateFormat());
+        this.checkByPincode = this.appConfiguration.getCheckByPincodeURL();
+        this.checkByDistrict = this.appConfiguration.getCheckByDistrictURL();
+    }
+
     // @Scheduled(cron = "0 0/1 * * * *")
     @Scheduled(cron = "0 * * * * *")
     @Async
@@ -63,23 +72,40 @@ public class CheckAvailivbilityService {
 
         for (int i = 0; i < alerts.size(); i++) {
             Alerts alert = alerts.get(i);
-            CowinResponse response;
-
-            if (alert.isPinCodeSearch()) {
-                response = checkByPinCode(alert.getPincode());
+            CowinResponse response = getResponseForAlert(alert);
+            Set<AvlResponse> avlResponseList = processResponse(alert, response);
+            if (avlResponseList.size() > 0) {
+                notifyUsers(alert, avlResponseList);
             } else {
-                response = checkAvlByDistrict(alert.getDistrictId());
+                log.info("Nothing to notify ");
             }
-
-            processResponse(alert, response);
         }
     }
 
-    @PostConstruct
-    public void PostConstruct() {
-        this.formatter = new SimpleDateFormat(this.appConfiguration.getDateFormat());
-        this.checkByPincode = this.appConfiguration.getCheckByPincodeURL();
-        this.checkByDistrict = this.appConfiguration.getCheckByDistrictURL();
+    public void refreshAvl(int id) {
+        Optional<Alerts> alertVal = alertRepo.findById(id);
+        if (alertVal.isPresent()) {
+            Alerts alert = alertVal.get();
+            CowinResponse response = getResponseForAlert(alert);
+            Set<AvlResponse> avlResponseList = processResponse(alert, response);
+            if (avlResponseList.isEmpty()) {
+                notificationService.sendTelegramUpdate(alert,
+                        "Currently no vaccine is available as per the for Alert: " + id);
+            } else {
+                notificationService.sendTelegramMessage(alert, avlResponseList);
+            }
+        }
+    }
+
+    private CowinResponse getResponseForAlert(Alerts alert) {
+        CowinResponse response;
+
+        if (alert.isPinCodeSearch()) {
+            response = checkByPinCode(alert.getPincode());
+        } else {
+            response = checkAvlByDistrict(alert.getDistrictId());
+        }
+        return response;
     }
 
     public Set<AvlResponse> processResponse(Alerts alert, CowinResponse response) {
@@ -110,10 +136,7 @@ public class CheckAvailivbilityService {
 
         if (avlResponseList.size() == 0) {
             log.debug("No avlResponseList Session found for Alert " + alert);
-            return null;
         }
-
-        notifyUsers(alert, avlResponseList);
 
         return avlResponseList;
     }
@@ -171,7 +194,7 @@ public class CheckAvailivbilityService {
                 break;
 
             case 3:
-                cost = notificationService.sendVaccineUpdates(alert, avlResponseList);
+                cost = notificationService.sendTelegramMessage(alert, avlResponseList);
                 break;
         }
 
@@ -226,4 +249,5 @@ public class CheckAvailivbilityService {
 
         return response.getBody();
     }
+
 }

@@ -47,4 +47,17 @@ public class AvailibilityController {
         }
     }
 
+    @RequestMapping(value = "/app/availability/Alert/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> fetchAlertData(@PathVariable int id) {
+        log.info("Rest to fetch alerts by id " + id);
+
+        try {
+            service.refreshAvl(id);
+            return new ResponseEntity(new JsonResponse("Success"), HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Exception occurred : {} ", e.getMessage(), e);
+            return new ResponseEntity<JsonResponse>(new JsonResponse("Exception updating alert"),
+                    HttpStatus.EXPECTATION_FAILED);
+        }
+    }
 }

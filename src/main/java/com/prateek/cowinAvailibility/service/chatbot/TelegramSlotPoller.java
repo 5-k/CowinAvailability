@@ -90,6 +90,16 @@ public class TelegramSlotPoller extends TelegramLongPollingBot {
         }
     }
 
+    public void sendVaccineUpdates(Alerts alert, String message) {
+        try {
+            log.debug("Response to publish ", message);
+            String chatId = alert.getPhoneNumber().substring(alert.getPhoneNumber().indexOf(":") + 1);
+            sendResponse(chatId, message, true, false);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
     public void sendVaccineUpdates(Alerts alert, Set<AvlResponse> avlResponseList) {
         try {
             String response = getAlertMessage(alert, avlResponseList);
@@ -148,7 +158,7 @@ public class TelegramSlotPoller extends TelegramLongPollingBot {
         updatedMessage.append(
                 "Click here to stop recieving updates for this alert:  /stopUpdatesForAlert" + alert.getId() + " \n");
         updatedMessage.append("Click here to stop recieving updates for all alerts:  /stopUpdates \n");
-        updatedMessage.append("Click fetch Latest Update on this:  /fetchLatestUpdate");
+        updatedMessage.append("Click fetch Latest Update on this:  /fetchLatestUpdateFor" + alert.getId());
 
         return updatedMessage.toString();
     }

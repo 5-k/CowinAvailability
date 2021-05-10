@@ -1,6 +1,7 @@
 package com.prateek.cowinAvailibility.service.chatbot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -9,14 +10,21 @@ import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.HttpHeaders;
+import com.prateek.cowinAvailibility.configuration.AppConfiguration;
 import com.prateek.cowinAvailibility.entity.Alerts;
 import com.prateek.cowinAvailibility.repo.AlertRepo;
 import com.prateek.cowinAvailibility.utility.HashMapCaseInsensitive;
+import com.prateek.cowinAvailibility.utility.JsonResponse;
 import com.prateek.cowinAvailibility.utility.Utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +37,9 @@ public class CowinTelegramChatBot {
 
     Map<String, Map<String, Integer>> cityMap;
     List<Map<String, Integer>> stateMap;
+
+    @Autowired
+    private AppConfiguration appConfiguration;
 
     @Autowired
     private AlertRepo alerRepo;
@@ -62,14 +73,28 @@ public class CowinTelegramChatBot {
         Alerts alert = this.alertMap.get(chatId);
 
         if (messageText.contains("stopupdatesforalert")) {
-            String id = messageText.substring("stopupdatesforalert".length());
+            String id = messageText.substring("stopupdatesforalert".length() + 1);
             Optional<Alerts> disableAlert = alerRepo.findById(Integer.parseInt(id));
-            if (null != disableAlert) {
+            if (null != disableAlert && disableAlert.isPresent()) {
                 Alerts alt = disableAlert.get();
                 alt.setActive(false);
                 alerRepo.save(alt);
-                responseList.add(actionResponseJson.get("disableAlert"));
             }
+            responseList.add(actionResponseJson.get("disableAlert"));
+            return responseList;
+        } else if (messageText.contains("fetchlatestupdatefor")) {
+            String id = messageText.substring("fetchlatestupdatefor".length() + 1);
+            String url = appConfiguration.getAppHostNameURL() + "/app/availability/Alert/" + id;
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+            headers.add("user-agent",
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36");
+            org.springframework.http.HttpEntity<String> entity = new org.springframework.http.HttpEntity<String>(
+                    "parameters", headers);
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<JsonResponse> res = restTemplate.exchange(url, HttpMethod.GET, entity, JsonResponse.class);
+            log.info("Response, " + res.getStatusCode() + "- " + res.getBody());
             return responseList;
         }
 

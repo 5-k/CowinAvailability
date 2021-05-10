@@ -15,6 +15,8 @@
 	<description>Cowin Vaccine Availibility</description>
 	<properties>
 		<java.version>11</java.version>
+		<start-class>com.prateek.cowinAvailibility.CowinAvailibilityApplication</start-class>
+
 	</properties>
 	<dependencies>
 		<dependency>
@@ -107,6 +109,8 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
+					<mainClass>com.prateek.cowinAvailibility.CowinAvailibilityApplication</mainClass>
+        			<layout>ZIP</layout>
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>
