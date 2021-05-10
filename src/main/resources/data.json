@@ -1,0 +1,49 @@
+{
+    "/start": "Hi there!,\nWelcome to Cowin Availability Slot Bot.\n\nThis application allows you to add alerts for getting vaccine availability information. You can get notified via Telegram and Email.\nJust Let us know some details and you will be good to go 💉",
+    "start": "Hi there!,\nWelcome to Cowin Availability Slot Bot.\n\nThis application allows you to add alerts for getting vaccine availability information. You can get notified via Telegram and Email.\nJust Let us know some details and you will be good to go 💉",
+    
+    "/bye":"It was nice to talk to you, See you soon again 😄",
+    "bye":"It was nice to talk to you, See you soon again 😄",
+    "end":"It was nice to talk to you, See you soon again 😄",
+    "leave":"It was nice to talk to you, See you soon again 😄",
+    
+    "update": "Checking for updated Information",
+    
+    "addOrDelete": "Would you like to **/addAlert** or view existing alerts **/viewAlerts** ",
+    
+    "addalert": "May I kindly have your name please?",
+    "add alert": "May I kindly have your name please?",
+    "/add alert": "May I kindly have your name please?",
+    "/addalert": "May I kindly have your name please?",
+    
+    "name_supplied": "Would you like to search by pincode or would you like to send state and city.\n\nReply **/pincode** to search via pincode\nReply **/state** to search via state and city",
+    
+    "/pincode" : "What is the pincode you are looking the information for?\n\n",
+    "pincode" : "What is the pincode you are looking the information for?\n\n",
+    "pin code" : "What is the pincode you are looking the information for?\n\n",
+    "invalidpincode" : "The pincode does not seems to be correct. Please try again!",
+    
+    "email_notifications" : "If you wish to be notified via email as well, please provide us with your email Id. Select **/NOEMAIL** if you want to skip it",
+    "/NOEMAIL": "",
+
+    "/state" : "Please select a state from the following.\n\n",
+    "state" : "Please select a state from the following.\n\n",
+    "invalidstate" : "The state name does not seems to be correct. Please try again!",
+    
+    "city": "Please select a state from the following\n\n",
+    "invalidcity" : "The city name does not seems to be correct. Please try again!",
+    
+    "age" : "And what is your age range **/18To44** or **/45+** ?",
+     
+    "success" : "We will notify you when slots are available in your area 👍\n\nTo add more such alerts select **/start** \n",
+    "disableAlert" : "Alert is successfully deleted 👍",
+
+    "deletealert": "What is the person name for which the alert has to be deleted?",
+    "delete alert": "What is the person name for which the alert has to be deleted?",
+    "/delete alert": "What is the person name for which the alert has to be deleted?",
+    "/deletealert": "What is the person name for which the alert has to be deleted?",
+    
+    "deletesuccess" : "Alert is successfully deleted 👍",
+     
+    "invalid_response" : "Oops! Looks like an unknown response🥺. Please try again by answering the previous question😄\n\nTo start Again select **/start**  \nTo leave the chat select **/bye** 😀"
+}

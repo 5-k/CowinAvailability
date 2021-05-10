@@ -1,0 +1,115 @@
+{
+    "states": [
+        {
+            "/AndamanAndNicobarIslands": 1
+        },
+        {
+            "/AndhraPradesh": 2
+        },
+        {
+            "/ArunachalPradesh": 3
+        },
+        {
+            "/Assam": 4
+        },
+        {
+            "/Bihar": 5
+        },
+        {
+            "/Chandigarh": 6
+        },
+        {
+            "/Chhattisgarh": 7
+        },
+        {
+            "/DadraAndNagarHaveli": 8
+        },
+        {
+            "/DamanAndDiu": 37
+        },
+        {
+            "/Delhi": 9
+        },
+        {
+            "/Goa": 10
+        },
+        {
+            "/Gujarat": 11
+        },
+        {
+            "/Haryana": 12
+        },
+        {
+            "/HimachalPradesh": 13
+        },
+        {
+            "/JammuAndKashmir": 14
+        },
+        {
+            "/Jharkhand": 15
+        },
+        {
+            "/Karnataka": 16
+        },
+        {
+            "/Kerala": 17
+        },
+        {
+            "/Ladakh": 18
+        },
+        {
+            "/Lakshadweep": 19
+        },
+        {
+            "/MadhyaPradesh": 20
+        },
+        {
+            "/Maharashtra": 21
+        },
+        {
+            "/Manipur": 22
+        },
+        {
+            "/Meghalaya": 23
+        },
+        {
+            "/Mizoram": 24
+        },
+        {
+            "/Nagaland": 25
+        },
+        {
+            "/Odisha": 26
+        },
+        {
+            "/Puducherry": 27
+        },
+        {
+            "/Punjab": 28
+        },
+        {
+            "/Rajasthan": 29
+        },
+        {
+            "/Sikkim": 30
+        },
+        {
+            "/TamilNadu": 31
+        },
+        {
+            "/Telangana": 32
+        },
+        {
+            "/Tripura": 33
+        },
+        {
+            "/UttarPradesh": 34
+        },
+        {
+            "/Uttarakhand": 35
+        },
+        {
+            "/WestBengal": 36
+        }
+    ]
+}
