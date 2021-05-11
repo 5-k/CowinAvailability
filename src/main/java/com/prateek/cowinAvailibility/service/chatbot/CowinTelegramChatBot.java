@@ -107,7 +107,7 @@ public class CowinTelegramChatBot {
 
         switch (messageText) {
 
-            case "/stopUpdates":
+            case "/stopupdates":
                 List<Alerts> alerts = alerRepo.findByPhoneNumber("telegram:" + chatId);
                 if (null != alerts && alerts.size() > 0) {
                     for (int i = 0; i < alerts.size(); i++) {
@@ -132,6 +132,28 @@ public class CowinTelegramChatBot {
                 responseList.add(actionResponseJson.get(messageText));
                 this.alertMap.put(chatId, null);
                 this.previousQuestion.put(chatId, null);
+                return responseList;
+
+            case "/viewalerts":
+                List<Alerts> alertList = alerRepo.findByPhoneNumberAndActiveTrue("telegram:" + chatId);
+                if (null == alertList || alertList.size() == 0) {
+                    responseList.add(actionResponseJson.get("noalertssetontelegram"));
+                    return responseList;
+                }
+                responseList.add(actionResponseJson.get("alertslistedbelow"));
+                for (int i = 0; i < alertList.size(); i++) {
+                    Alerts alt = alertList.get(i);
+                    StringBuilder builder = new StringBuilder();
+                    builder.append("For ");
+                    builder.append(alt.getName());
+                    builder.append(" and age group ");
+                    builder.append(alt.getAge());
+                    builder.append("+ at location ");
+                    builder.append(alt.isPinCodeSearch() ? alt.getPincode() : alt.getCity() + "," + alt.getState());
+                    builder.append("\n\n");
+
+                    responseList.add(builder.toString());
+                }
                 return responseList;
 
             default:

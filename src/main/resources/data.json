@@ -44,6 +44,9 @@
     "/deletealert": "What is the person name for which the alert has to be deleted?",
     
     "deletesuccess" : "Alert is successfully deleted 👍",
-     
+    
+    "noalertssetontelegram": "Oops! Looks like no alerts have been set using the chatbot. To create your first alert start with **/start**",
+    "alertslistedbelow":"Following alerts are registered with the phone",
+
     "invalid_response" : "Oops! Looks like an unknown response🥺. Please try again by answering the previous question😄\n\nTo start Again select **/start**  \nTo leave the chat select **/bye** 😀"
 }

@@ -14,5 +14,7 @@ public interface AlertRepo extends JpaRepository<Alerts, Integer> {
 
     public List<Alerts> findByPhoneNumber(String phoneNumber);
 
+    public List<Alerts> findByPhoneNumberAndActiveTrue(String phoneNumber);
+
     public List<Alerts> findByActiveTrue();
 }
