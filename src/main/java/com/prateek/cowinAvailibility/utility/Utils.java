@@ -34,7 +34,7 @@ public class Utils {
         while (itr.hasNext()) {
             Map.Entry<String, Integer> entry = itr.next();
             builder.append(entry.getKey());
-            builder.append("\n");
+            builder.append("\n\n");
         }
         return builder.toString();
     }

@@ -63,4 +63,12 @@ public class AvailibilityController {
                     HttpStatus.EXPECTATION_FAILED);
         }
     }
+
+    @SuppressWarnings("unchecked")
+    @RequestMapping(value = "/app/forceCrone/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> forceRunCroneJob() {
+        log.info("Force Run Cron Job");
+        service.forceRunCron();
+        return new ResponseEntity(new JsonResponse("Force Run Success"), HttpStatus.OK);
+    }
 }

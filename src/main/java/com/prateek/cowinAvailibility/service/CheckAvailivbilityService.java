@@ -62,7 +62,11 @@ public class CheckAvailivbilityService {
         this.checkByDistrict = this.appConfiguration.getCheckByDistrictURL();
     }
 
-    @Scheduled(cron = "0 * * * * *")
+    public void forceRunCron() {
+        checkContiniousAVL();
+    }
+
+    @Scheduled(cron = "0 0/45 * * * ?")
     @Async
     public void checkContiniousAVL() {
         log.info("Cron Job to check avl");
@@ -134,7 +138,7 @@ public class CheckAvailivbilityService {
                         && session.getMin_age_limit() >= alert.getAge() && session.getAvailable_capacity() > 0) {
                     validSessions.add(session);
                 } else {
-                    log.info("Vaccination Type or age did not match or not available, ", session.toString());
+                    log.debug("Vaccination Type or age did not match or not available, ", session.toString());
                 }
             }
 
