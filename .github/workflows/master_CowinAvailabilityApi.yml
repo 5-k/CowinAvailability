@@ -47,7 +47,7 @@ jobs:
       id: deploy-to-webapp
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'CowinAvailabilityApi'
+        app-name: 'CowinAvailibility'
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_5d039b5858f04e5fb06b47682a437a95 }}
         package: '*.war'
