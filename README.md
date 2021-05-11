@@ -5,6 +5,8 @@
 
 Cowin Availability is an open source service which can be used to be notified for custom alerts setup by user for vaccine availability.
 
+Register to alerts: https://docs.google.com/forms/d/e/1FAIpQLSfdQ6xSxK-mmnrg_Tz72Acc2jIo1D3I833k4NuAOV-ZOE4x3Q/viewform  or signup on telegram https://t.me/Cowin_Availability_Slot_bot
+
 It's a web project based on Java Spring boot, and hosted on Azure.
 
 - Custom unlimited alerts
