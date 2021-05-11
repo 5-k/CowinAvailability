@@ -1,5 +1,6 @@
 package com.prateek.cowinAvailibility.entity;
 
+import java.util.Comparator;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -15,7 +16,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(name = "notifications")
-public class Notifications implements Comparable<Notifications> {
+public class Notifications implements Comparable<Notifications>, Comparator<Notifications> {
 
     @Id
     @Column(nullable = false)
@@ -109,7 +110,12 @@ public class Notifications implements Comparable<Notifications> {
 
     @Override
     public int compareTo(Notifications o) {
-        return getCreatedAt().compareTo(o.getCreatedAt());
+        return o.getCreatedAt().compareTo(getCreatedAt());
+    }
+
+    @Override
+    public int compare(Notifications o1, Notifications o2) {
+        return o2.getCreatedAt().compareTo(o1.getCreatedAt());
     }
 
 }

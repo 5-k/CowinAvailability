@@ -23,6 +23,9 @@ public class Service {
     @Autowired
     private AlertRepo alertRepo;
 
+    @Autowired
+    private EmailServce emailServce;
+
     // public Alerts(String name, String state, String city, int pincode, int
     // districtId, String phoneNumber,
     // boolean active, int age, String vaccineType)
@@ -82,6 +85,11 @@ public class Service {
         return 1;
     }
 
+    public void sendEmail(int id) {
+        Alerts alert = alertRepo.findById(id).get();
+        emailServce.sendWelcomeMessage(alert);
+    }
+
     public List<AlertDTO> getAlerts() {
         List<Alerts> alerts = alertRepo.findAll();
         return convertToDtos(alerts);
@@ -116,4 +124,5 @@ public class Service {
         alertVal.setModifiedAt(alert.getModifiedAt());
         return alertVal;
     }
+
 }

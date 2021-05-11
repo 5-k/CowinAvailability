@@ -1,9 +1,11 @@
 package com.prateek.cowinAvailibility.service;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
 import javax.mail.Message;
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class EmailServce {
+
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final String mainMessage = "<div id=\":1cv\" class=\"Am Al editable LW-avf tS-tW tS-tY\" hidefocus=\"true\" aria-label=\"Message Body\" g_editable=\"true\" role=\"textbox\" aria-multiline=\"true\" contenteditable=\"true\" tabindex=\"1\" style=\"direction: ltr; min-height: 173px;\" itacorner=\"6,7:1,1,0,0\" spellcheck=\"true\">Hi There,<div><br></div><div>This is in reference with the alert setup by you mentioned below:</div><div><br></div>"
             + "<div><b>Alert </b>-&nbsp;${Alert}</div>------------------------------------<div><br></div>"
@@ -38,12 +41,27 @@ public class EmailServce {
             + "<div>Available Vaccine :${SlotAndCount}</div>";
 
     @Autowired
+    private DataService dataService;
+
+    private Map<String, String> actionResponseJson;
+
+    @PostConstruct
+    private void PostConstruct() {
+        this.actionResponseJson = dataService.getActionResponseJson();
+    }
+
+    @Autowired
     private AppConfiguration appConfiguration;
 
-    public String sendEmail(Alerts alert, Set<AvlResponse> avlResponseList) {
-        try {
+    public void sendWelcomeMessage(Alerts alert) {
+        String disableAlerts = appConfiguration.getAppHostNameURL() + "/app/Alerts/delete/" + alert.getId();
+        String message = this.actionResponseJson.get("welcome").replace("${clickHere}", disableAlerts);
+        String subject = "Welcome to Cowin Alerts";
+        sendEmail(alert, subject, message);
+    }
 
-            String disableAlerts = appConfiguration.getAppHostNameURL() + "/app/Alerts/delete/" + alert.getId();
+    public String sendEmail(Alerts alert, String subject, String htmlMessage) {
+        try {
 
             log.info("Email Alert for " + alert.toString());
 
@@ -63,9 +81,8 @@ public class EmailServce {
             message.setFrom(new InternetAddress(from));
             message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
 
-            message.setSubject(getSubjectLine(alert));
-            message.setContent(getHtmlVaccinationInfo(alert, avlResponseList, disableAlerts),
-                    "text/html; charset=utf-8");
+            message.setSubject(subject);
+            message.setContent(htmlMessage, "text/html; charset=utf-8");
             Transport.send(message);
 
             log.info("Sent message successfully....");
@@ -74,6 +91,14 @@ public class EmailServce {
             mex.printStackTrace();
         }
         return "0";
+    }
+
+    public String sendEmail(Alerts alert, Set<AvlResponse> avlResponseList) {
+        String subject = getSubjectLine(alert);
+        String disableAlerts = appConfiguration.getAppHostNameURL() + "/app/Alerts/delete/" + alert.getId();
+        String message = getHtmlVaccinationInfo(alert, avlResponseList, disableAlerts);
+        return sendEmail(alert, subject, message);
+
     }
 
     private String getSubjectLine(Alerts alert) {
@@ -107,14 +132,11 @@ public class EmailServce {
                     }
 
                     slotsAndCountBuilder.append("<li>");
-                    slotsAndCountBuilder
-                            .append("<span style=\"background-color: rgb(255, 255, 255); color: \"#bf9000\" \" ");
-                    slotsAndCountBuilder.append(session.getAvailable_capacity());
-                    slotsAndCountBuilder.append("</span>");
-                    slotsAndCountBuilder.append(session.getAvailable_capacity());
-                    slotsAndCountBuilder.append(" at slot time ");
 
-                    slotsAndCountBuilder.append("<span color=\"a64d79\">");
+                    slotsAndCountBuilder.append(session.getAvailable_capacity());
+                    slotsAndCountBuilder.append(" on ");
+                    slotsAndCountBuilder.append(session.getDate());
+                    slotsAndCountBuilder.append(" for slot time ");
                     slotsAndCountBuilder.append(session.getSlots());
                     slotsAndCountBuilder.append("</span>");
                     slotsAndCountBuilder.append("</li>");

@@ -14,7 +14,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpHeaders;
 import com.prateek.cowinAvailibility.configuration.AppConfiguration;
 import com.prateek.cowinAvailibility.entity.Alerts;
+import com.prateek.cowinAvailibility.entity.Feedback;
 import com.prateek.cowinAvailibility.repo.AlertRepo;
+import com.prateek.cowinAvailibility.repo.FeedbackRepo;
+import com.prateek.cowinAvailibility.service.DataService;
 import com.prateek.cowinAvailibility.utility.HashMapCaseInsensitive;
 import com.prateek.cowinAvailibility.utility.JsonResponse;
 import com.prateek.cowinAvailibility.utility.Utils;
@@ -45,28 +48,21 @@ public class CowinTelegramChatBot {
     @Autowired
     private AlertRepo alerRepo;
 
+    @Autowired
+    private DataService dataService;
+
+    @Autowired
+    private FeedbackRepo feedbackRepo;
+
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @PostConstruct
-    @SuppressWarnings("unchecked")
     public void loadResource() {
-        try {
-            alertMap = new HashMap<Long, Alerts>();
-            ObjectMapper mapper = new ObjectMapper();
-
-            InputStream dataStream = getClass().getClassLoader().getResourceAsStream("data.json");
-            InputStream stateStream = getClass().getClassLoader().getResourceAsStream("stateList.json");
-            InputStream cityStream = getClass().getClassLoader().getResourceAsStream("cityList.json");
-
-            this.actionResponseJson = mapper.readValue(dataStream, Map.class);
-            this.stateMap = (List<Map<String, Integer>>) mapper.readValue(stateStream, Map.class).get("states");
-            this.cityMap = (Map<String, Map<String, Integer>>) mapper.readValue(cityStream, Map.class).get("districts");
-
-            previousQuestion = new HashMap<Long, String>();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        alertMap = new HashMap<Long, Alerts>();
+        previousQuestion = new HashMap<Long, String>();
+        this.actionResponseJson = dataService.getActionResponseJson();
+        this.stateMap = dataService.getStateMap();
+        this.cityMap = dataService.getCityMap();
 
     }
 
@@ -118,6 +114,22 @@ public class CowinTelegramChatBot {
                 responseList.add(actionResponseJson.get("disableAlert"));
                 return responseList;
 
+            case "/feedback":
+                if (this.alertMap.containsKey(chatId)) {
+                    this.alertMap.remove(chatId);
+                }
+                responseList.add(actionResponseJson.get("/feedback"));
+                this.previousQuestion.put(chatId, "/feedback");
+                return responseList;
+
+            case "/contact":
+                if (this.alertMap.containsKey(chatId)) {
+                    this.alertMap.remove(chatId);
+                }
+                responseList.add(actionResponseJson.get("/contact"));
+                this.previousQuestion.put(chatId, null);
+                return responseList;
+
             case "/start":
             case "start":
                 responseList.add(actionResponseJson.get(messageText));
@@ -130,8 +142,13 @@ public class CowinTelegramChatBot {
             case "/bye":
             case "bye":
                 responseList.add(actionResponseJson.get(messageText));
-                this.alertMap.put(chatId, null);
-                this.previousQuestion.put(chatId, null);
+                if (this.alertMap.containsKey(chatId)) {
+                    this.alertMap.remove(chatId);
+                }
+                if (this.previousQuestion.containsKey(chatId)) {
+                    this.previousQuestion.remove(chatId);
+                }
+
                 return responseList;
 
             case "/viewalerts":
@@ -157,7 +174,19 @@ public class CowinTelegramChatBot {
                 return responseList;
 
             default:
-                if (null == alert) {
+                if (null != this.previousQuestion.get(chatId)
+                        && this.previousQuestion.get(chatId).equals("/feedback")) {
+                    Feedback feedback = new Feedback("telegram:" + String.valueOf(chatId), messageText);
+                    feedbackRepo.save(feedback);
+                    if (this.alertMap.containsKey(chatId)) {
+                        this.alertMap.remove(chatId);
+                    }
+                    if (this.previousQuestion.containsKey(chatId)) {
+                        this.previousQuestion.remove(chatId);
+                    }
+                    responseList.add(actionResponseJson.get("successfeedback"));
+                    return responseList;
+                } else if (null == alert) {
                     responseList.add(actionResponseJson.get("invalid_response"));
                     previousQuestion.put(chatId, "invalid_response");
                     return responseList;
@@ -168,6 +197,9 @@ public class CowinTelegramChatBot {
         String prevQues = this.previousQuestion.get(chatId);
         if (null != prevQues) {
             switch (prevQues) {
+
+                case "/feedback":
+
                 case "/start":
                     previousQuestion.put(chatId, "/addalert");
                     break;

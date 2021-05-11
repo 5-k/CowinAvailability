@@ -66,8 +66,9 @@ public class CheckAvailivbilityService {
         checkContiniousAVL();
     }
 
-    @Scheduled(cron = "0 0/45 * * * ?")
+    @Scheduled(cron = "0 0/20 * * * ?")
     @Async
+    // @Scheduled(cron = "0 * * * * *")
     public void checkContiniousAVL() {
         log.info("Cron Job to check avl");
         List<Alerts> alerts = alertRepo.findByActiveTrue();
@@ -135,10 +136,8 @@ public class CheckAvailivbilityService {
                 CowinResponseSessions session = center.getSessions().get(j);
                 if ((alert.getVaccineType().trim().equalsIgnoreCase("any")
                         || alert.getVaccineType().trim().equalsIgnoreCase(session.getVaccine()))
-                        && session.getMin_age_limit() >= alert.getAge() && session.getAvailable_capacity() > 0) {
+                        && alert.getAge() >= session.getMin_age_limit() && session.getAvailable_capacity() > 0) {
                     validSessions.add(session);
-                } else {
-                    log.debug("Vaccination Type or age did not match or not available, ", session.toString());
                 }
             }
 
@@ -156,6 +155,7 @@ public class CheckAvailivbilityService {
         return avlResponseList;
     }
 
+    @Async
     private void notifyUsers(Alerts alert, Set<AvlResponse> avlResponseList) {
         List<Notifications> notifications = notificationsRepo.findByAlertId(alert.getId());
 
@@ -178,9 +178,26 @@ public class CheckAvailivbilityService {
         }
 
         if (notificationSentToday >= this.appConfiguration.getMaxNotificationPerAlertPerDay()) {
-            log.info("Already 2 notification issued to this mobile number:  for alert " + alert.toString()
-                    + " Not issuing current one");
+            log.info("Already getMaxNotificationPerAlertPerDay notification issued to this mobile number:  for alert "
+                    + alert.toString() + " Not issuing current one");
             return;
+        } else if (notificationSentToday > 0) {
+            Notifications notification = notifications.get(0); // Latest Notificiation
+            if (notification.getCreatedAt().getDate() == currentDate.getDate()
+                    && notification.getCreatedAt().getMonth() == currentDate.getMonth()
+                    && notification.getCreatedAt().getYear() == currentDate.getYear()) {
+                long td = currentDate.getTime() - notification.getCreatedAt().getTime();
+                long timeinMinutes = (td) / 1000 / 60;
+                log.info("Last Notification sent at : " + notification.getCreatedAt() + " and current time is "
+                        + currentDate.getDate() + " and their time difference in millis is " + td
+                        + " and in minutes is " + timeinMinutes);
+
+                if (timeinMinutes < 40) {
+
+                    log.info("Max notification is 1 every 40 minutes, not sending notification for " + alert);
+                    return;
+                }
+            }
         }
 
         String alerts = alert.getNotificationType();

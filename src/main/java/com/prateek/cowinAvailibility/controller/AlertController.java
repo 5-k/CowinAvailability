@@ -108,4 +108,11 @@ public class AlertController {
                     HttpStatus.EXPECTATION_FAILED);
         }
     }
+
+    @RequestMapping(value = "/app/Alerts/email/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> notifyEmailUser(@PathVariable int id) {
+        service.sendEmail(id);
+        return new ResponseEntity("Email Sent!", HttpStatus.OK);
+    }
+
 }

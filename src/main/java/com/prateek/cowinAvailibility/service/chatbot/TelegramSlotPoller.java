@@ -69,7 +69,7 @@ public class TelegramSlotPoller extends TelegramLongPollingBot {
         }
     }
 
-    private void sendResponse(String chatId, String response, boolean enableMarkdown, boolean enableHtml) {
+    public void sendResponse(String chatId, String response, boolean enableMarkdown, boolean enableHtml) {
         SendMessage message = new SendMessage(chatId, response);
         message.enableMarkdown(enableMarkdown);
         if (enableHtml) {
