@@ -104,12 +104,12 @@
       <groupId>com.microsoft.sqlserver</groupId>  
       <artifactId>mssql-jdbc</artifactId>  
       <version>9.2.1.jre15</version> 
+    </dependency>  
+    <dependency> 
+      <groupId>org.apache.commons</groupId>  
+      <artifactId>commons-lang3</artifactId>  
+      <version>3.9</version> 
     </dependency> 
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-      <version>3.9</version>
-  </dependency>
   </dependencies>  
   <build> 
     <plugins> 
