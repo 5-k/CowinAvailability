@@ -72,6 +72,7 @@ public class CowinTelegramChatBot {
 
         List<String> responseList = new ArrayList<>();
         Alerts alert = this.alertMap.get(chatId);
+        String stringChatId = String.valueOf(chatId);
 
         if (messageText.contains("stopupdatesforalert")) {
             String id = messageText.substring("stopupdatesforalert".length() + 1);
@@ -82,7 +83,8 @@ public class CowinTelegramChatBot {
             }
 
             Alerts alertVal = disableAlert.get();
-            if (alertVal.getPhoneNumber().contains(String.valueOf(chatId)) || chatId == 1813358994) {
+            if (alertVal.getPhoneNumber().contains(stringChatId)
+                    || stringChatId.equals(appConfiguration.getDebugTelegramChatId())) {
                 Alerts alt = disableAlert.get();
                 alt.setActive(false);
                 alerRepo.save(alt);
@@ -90,7 +92,9 @@ public class CowinTelegramChatBot {
             } else {
                 responseList.add(actionResponseJson.get("deleteyouralertsonly"));
             }
-
+            responseList.add(actionResponseJson.get("/deletefeedback"));
+            responseList.add(actionResponseJson.get("feedback"));
+            this.previousQuestion.put(chatId, "/feedback");
             return responseList;
         } else if (messageText.contains("fetchlatestupdatefor")) {
             int id = Integer.parseInt(messageText.substring("fetchlatestupdatefor".length() + 1));
@@ -100,9 +104,11 @@ public class CowinTelegramChatBot {
                 return responseList;
             }
             Alerts alertVal = alt.get();
-            if (alertVal.getPhoneNumber().contains(String.valueOf(chatId)) || chatId == 1813358994) {
+
+            if (alertVal.getPhoneNumber().contains(stringChatId)
+                    || stringChatId.equals(appConfiguration.getDebugTelegramChatId())) {
                 String url;
-                if (chatId == 1813358994) {
+                if (stringChatId.equals(appConfiguration.getDebugTelegramChatId())) {
                     url = appConfiguration.getAppHostNameURL() + "/app/availabilityDebug/Alert/" + id;
                 } else {
                     url = appConfiguration.getAppHostNameURL() + "/app/availability/Alert/" + id;
@@ -138,6 +144,9 @@ public class CowinTelegramChatBot {
                 }
                 alerRepo.saveAll(alerts);
                 responseList.add(actionResponseJson.get("disableAlert"));
+                responseList.add(actionResponseJson.get("/deletefeedback"));
+                responseList.add(actionResponseJson.get("feedback"));
+                this.previousQuestion.put(chatId, "/feedback");
                 return responseList;
 
             case "/feedback":
@@ -178,7 +187,7 @@ public class CowinTelegramChatBot {
                 return responseList;
 
             case "/viewalerts":
-                List<Alerts> alertList = alerRepo.findByPhoneNumberAndActiveTrue("telegram:" + chatId);
+                List<Alerts> alertList = alerRepo.findByPhoneNumberContainingAndActiveTrue(stringChatId);
                 if (null == alertList || alertList.size() == 0) {
                     responseList.add(actionResponseJson.get("noalertssetontelegram"));
                     return responseList;
@@ -197,11 +206,19 @@ public class CowinTelegramChatBot {
 
                     responseList.add(builder.toString());
                 }
+                responseList.add(actionResponseJson.get("/addOrDelete"));
                 return responseList;
 
             default:
                 if (null != this.previousQuestion.get(chatId)
                         && this.previousQuestion.get(chatId).equals("/feedback")) {
+                    if (messageText.startsWith("/")) {
+                        responseList.add(actionResponseJson.get("/invalidFeedback"));
+                        responseList.add(actionResponseJson.get("/feedback"));
+                        previousQuestion.put(chatId, "/feedback");
+                        return responseList;
+                    }
+
                     Feedback feedback = new Feedback("telegram:" + String.valueOf(chatId), messageText);
                     feedbackRepo.save(feedback);
                     if (this.alertMap.containsKey(chatId)) {
@@ -225,7 +242,6 @@ public class CowinTelegramChatBot {
             switch (prevQues) {
 
                 case "/feedback":
-
                 case "/start":
                     previousQuestion.put(chatId, "/addalert");
                     break;
@@ -234,6 +250,12 @@ public class CowinTelegramChatBot {
                 case "addalert":
                 case "add alert":
                 case "/add alert":
+                    if (messageText.startsWith("/") || messageText.length() < 3) {
+                        responseList.add(actionResponseJson.get("/invalidname"));
+                        responseList.add(actionResponseJson.get("/addalert"));
+                        previousQuestion.put(chatId, "/addalert");
+                        return responseList;
+                    }
                     alert.setName(messageText);
                     response = actionResponseJson.get("name_supplied");
                     previousQuestion.put(chatId, "name_supplied");
@@ -306,8 +328,13 @@ public class CowinTelegramChatBot {
 
                 case "email_notifications":
                 case "/email_notifications":
-                    if (messageText.contains("noemail") || messageText.contains("no email")) {
+                    if (messageText.equalsIgnoreCase("/skipemailnotification")) {
                         log.info(" No Email provided");
+                    } else if (messageText.startsWith("/") || messageText.indexOf(".") == -1
+                            || messageText.indexOf("@") == -1) {
+                        previousQuestion.put(chatId, "/email_notifications");
+                        responseList.add(actionResponseJson.get("/invalidEmail"));
+                        return responseList;
                     } else {
                         String notType = alert.getNotificationType();
                         if (null == notType || notType.length() == 0) {
@@ -323,7 +350,7 @@ public class CowinTelegramChatBot {
                     previousQuestion.put(chatId, "age");
                     break;
 
-                case "/NOEMAIL":
+                case "/skipemailnotification":
                     response = actionResponseJson.get("age");
                     previousQuestion.put(chatId, "age");
                     break;
@@ -334,7 +361,10 @@ public class CowinTelegramChatBot {
                     } else if (messageText.contains("/45+") || messageText.contains("45")) {
                         alert.setAge(45);
                     } else {
-                        alert.setAge(19);
+                        responseList.add(actionResponseJson.get("invalidageselection"));
+                        responseList.add(actionResponseJson.get("age"));
+                        previousQuestion.put(chatId, "age");
+                        return responseList;
                     }
                     response = actionResponseJson.get("success");
                     previousQuestion.put(chatId, "success");

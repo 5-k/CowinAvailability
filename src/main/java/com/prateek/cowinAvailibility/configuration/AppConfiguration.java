@@ -49,8 +49,8 @@ public class AppConfiguration {
     @Value("${app.maxNotificationPerAlertPerDay}")
     private int maxNotificationPerAlertPerDay;
 
-    @Value("${app.maxNotificationPerAlertHour}")
-    private int maxNotificationPerAlertHour;
+    @Value("${app.timeDifferenceBetweenPreviousNotificationInMins}")
+    private int timeDifferenceBetweenPreviousNotificationInMins;
 
     @Value("${app.hostNameURL}")
     private String appHostNameURL;
@@ -69,6 +69,15 @@ public class AppConfiguration {
 
     @Value("${app.twilosendNumber}")
     private String twiloSendNumber;
+
+    @Value("${app.checkAVLCronJob}")
+    private String checkAVLCronJob;
+
+    @Value("${app.logChatbotCron}")
+    private String logChatbotCron;
+
+    @Value("${app.debugTelegramChatId}")
+    private String debugTelegramChatId;
 
     public String getTwiloAccoundSid() {
         return twiloAccoundSid;
@@ -222,12 +231,37 @@ public class AppConfiguration {
         this.maxNotificationPerAlertPerDay = maxNotificationPerAlertPerDay;
     }
 
-    public int getMaxNotificationPerAlertHour() {
-        return maxNotificationPerAlertHour;
+    public int getTimeDifferenceBetweenPreviousNotificationInMins() {
+        return timeDifferenceBetweenPreviousNotificationInMins;
     }
 
-    public void setMaxNotificationPerAlertHour(int maxNotificationPerAlertHour) {
-        this.maxNotificationPerAlertHour = maxNotificationPerAlertHour;
+    public void setTimeDifferenceBetweenPreviousNotificationInMins(
+            int timeDifferenceBetweenPreviousNotificationInMins) {
+        this.timeDifferenceBetweenPreviousNotificationInMins = timeDifferenceBetweenPreviousNotificationInMins;
+    }
+
+    public String getCheckAVLCronJob() {
+        return checkAVLCronJob;
+    }
+
+    public void setCheckAVLCronJob(String checkAVLCronJob) {
+        this.checkAVLCronJob = checkAVLCronJob;
+    }
+
+    public String getLogChatbotCron() {
+        return logChatbotCron;
+    }
+
+    public void setLogChatbotCron(String logChatbotCron) {
+        this.logChatbotCron = logChatbotCron;
+    }
+
+    public String getDebugTelegramChatId() {
+        return debugTelegramChatId;
+    }
+
+    public void setDebugTelegramChatId(String debugTelegramChatId) {
+        this.debugTelegramChatId = debugTelegramChatId;
     }
 
 }

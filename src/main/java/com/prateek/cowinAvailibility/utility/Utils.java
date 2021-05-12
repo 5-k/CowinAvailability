@@ -103,4 +103,27 @@ public class Utils {
         return 0;
     }
 
+    public static String getEmotionLessString(String message) {
+        if (null == message) {
+            return "";
+        }
+
+        return message.replaceAll(Constants.characterFilter, "__EMOJI__");
+    }
+
+    public static List<String> splitToNChar(String text, int size) {
+
+        List<String> parts = new ArrayList<>();
+        if (null == text) {
+            return parts;
+        }
+
+        int length = text.length();
+        for (int i = 0; i < length; i += size) {
+            parts.add(text.substring(i, Math.min(length, i + size)));
+        }
+        return parts;
+        // return parts.toArray(new String[0]);
+    }
+
 }

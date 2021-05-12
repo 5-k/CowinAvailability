@@ -81,8 +81,10 @@ public class GenerateNotificationService implements IGenerateNotificationService
                         + cal.getTime() + " and their time difference in millis is " + td + " and in minutes is "
                         + timeinMinutes);
 
-                if (timeinMinutes < 30) {
-                    log.info("Max notification is 1 every 30 minutes, not sending notification for " + alert);
+                if (timeinMinutes < appConfiguration.getTimeDifferenceBetweenPreviousNotificationInMins()) {
+                    log.info("Max notification is 1 every "
+                            + appConfiguration.getTimeDifferenceBetweenPreviousNotificationInMins()
+                            + ", not sending notification for " + alert);
                     return;
                 }
             }

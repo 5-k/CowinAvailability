@@ -9,6 +9,7 @@ import com.prateek.cowinAvailibility.configuration.AppConfiguration;
 import com.prateek.cowinAvailibility.dto.cowinResponse.AvlResponse;
 import com.prateek.cowinAvailibility.entity.Alerts;
 import com.prateek.cowinAvailibility.service.chatbot.ITelegramSlotPoller;
+import com.prateek.cowinAvailibility.utility.Utils;
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 
@@ -77,7 +78,7 @@ public class NotificationService {
         }
 
         String message = buidBuilder.toString();
-        List<String> splitStrings = splitToNChar(message, 1600);
+        List<String> splitStrings = Utils.splitToNChar(message, 1600);
         String messageReturn = null;
 
         for (int i = 0; i < splitStrings.size(); i++) {
@@ -122,14 +123,4 @@ public class NotificationService {
         return message.getPrice() + "-" + message.getPriceUnit();
     }
 
-    private List<String> splitToNChar(String text, int size) {
-        List<String> parts = new ArrayList<>();
-
-        int length = text.length();
-        for (int i = 0; i < length; i += size) {
-            parts.add(text.substring(i, Math.min(length, i + size)));
-        }
-        return parts;
-        // return parts.toArray(new String[0]);
-    }
 }

@@ -1,9 +1,11 @@
 package com.prateek.cowinAvailibility.controller;
 
 import com.prateek.cowinAvailibility.service.CheckAvailivbilityService;
+import com.prateek.cowinAvailibility.service.IAsyncProcessor;
 import com.prateek.cowinAvailibility.utility.JsonResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,10 @@ public class AvailibilityController {
     @Autowired
     private CheckAvailivbilityService service;
 
+    @Autowired
+    @Qualifier("AsyncProcessor")
+    private IAsyncProcessor asyncProcessor;
+
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @SuppressWarnings("unchecked")
@@ -27,7 +33,7 @@ public class AvailibilityController {
         log.info("Rest to availability by district id for id " + id);
 
         try {
-            return new ResponseEntity(service.checkAvlByDistrict(id), HttpStatus.OK);
+            return new ResponseEntity(asyncProcessor.checkAvlByDistrict(id), HttpStatus.OK);
         } catch (Exception e) {
             log.error("Exception occurred : {} ", e.getMessage(), e);
             return new ResponseEntity<JsonResponse>(new JsonResponse("Exception fethcing data"),
@@ -41,7 +47,7 @@ public class AvailibilityController {
         log.info("Rest to getAvlByPinCode by pincode id for id " + id);
 
         try {
-            return new ResponseEntity(service.checkByPinCode(id), HttpStatus.OK);
+            return new ResponseEntity(asyncProcessor.checkByPinCode(id), HttpStatus.OK);
         } catch (Exception e) {
             log.error("Exception occurred : {} ", e.getMessage(), e);
             return new ResponseEntity<JsonResponse>(new JsonResponse("Exception fethcing data"),

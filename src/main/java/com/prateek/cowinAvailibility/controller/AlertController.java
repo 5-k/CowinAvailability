@@ -23,6 +23,7 @@ public class AlertController {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
+    @SuppressWarnings("unchecked")
     @RequestMapping(value = "/app/Alerts", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAlerts() {
         log.info("Rest to fetch all alerts");
@@ -36,6 +37,7 @@ public class AlertController {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @RequestMapping(value = "/app/Alerts/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAlerts(@PathVariable int id) {
         log.info("Rest to fetch alerts by id " + id);
@@ -49,6 +51,7 @@ public class AlertController {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @RequestMapping(value = "/app/Alerts/phone", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAlertsByPhone(@RequestBody AlertDTO aDto) {
         log.info("Rest to fetch user alerts for ", aDto.toString());
@@ -62,6 +65,7 @@ public class AlertController {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @RequestMapping(value = "/app/Alert", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> addAlert(@RequestBody AlertDTO aDto) {
 
@@ -76,6 +80,7 @@ public class AlertController {
     }
 
     // Remove Alert
+    @SuppressWarnings("unchecked")
     @RequestMapping(value = "/app/Alerts/delete/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> disableAlertById(@PathVariable int id) {
         removeAlertById(id);
@@ -83,6 +88,7 @@ public class AlertController {
                 "You have been successfully removed from the alert list. Thankyou and have a good day!", HttpStatus.OK);
     }
 
+    @SuppressWarnings("unchecked")
     @RequestMapping(value = "/app/Alerts/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> removeAlertById(@PathVariable int id) {
         log.info("Rest to disable alerts by id " + id);
@@ -96,6 +102,7 @@ public class AlertController {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @RequestMapping(value = "/app/Alerts/phone", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> removeAlertsByPhone(@RequestBody AlertDTO aDto) {
         log.info("Rest to disable user alerts by phone for ", aDto.toString());
@@ -109,6 +116,7 @@ public class AlertController {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @RequestMapping(value = "/app/Alerts/sendWelcomeEmail/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> sendWelcomeEmail(@PathVariable int id) {
         service.sendWelcomeEmail(id);

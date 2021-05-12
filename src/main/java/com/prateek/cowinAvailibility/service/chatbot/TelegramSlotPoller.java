@@ -8,8 +8,10 @@ import com.prateek.cowinAvailibility.configuration.AppConfiguration;
 import com.prateek.cowinAvailibility.dto.cowinResponse.AvlResponse;
 import com.prateek.cowinAvailibility.dto.cowinResponse.CowinResponseSessions;
 import com.prateek.cowinAvailibility.entity.Alerts;
+import com.prateek.cowinAvailibility.utility.Utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.*;
@@ -24,6 +26,10 @@ import org.slf4j.LoggerFactory;
 
 @Component("telegramSlotPoller")
 public class TelegramSlotPoller extends TelegramLongPollingBot implements ITelegramSlotPoller {
+
+    @Autowired
+    @Qualifier("ChatBotLogger")
+    private IChatBotLogger chatLogger;
 
     @Autowired
     private AppConfiguration appConfiguration;
@@ -49,21 +55,24 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
+            long longchatId = update.getMessage().getChatId();
 
             String messageText = update.getMessage().getText();
+            chatLogger.logChat(longchatId, messageText, true);
+
             log.info("Input Message", messageText);
             log.info("updateId - " + update.getUpdateId() + " - getChatId " + update.getMessage().getChatId()
                     + " isCommand- " + update.getMessage().isCommand() + " - getMessageId "
                     + update.getMessage().getMessageId());
 
-            List<String> response = cowinTelegramChatBot.getResponseForMessage(messageText,
-                    update.getMessage().getChatId());
+            List<String> response = cowinTelegramChatBot.getResponseForMessage(messageText, longchatId);
             log.debug("Got Message for the input - " + messageText);
 
-            String chatId = String.valueOf(update.getMessage().getChatId());
+            String chatId = String.valueOf(longchatId);
             log.debug("response --> " + response);
             for (int i = 0; i < response.size(); i++) {
                 sendResponse(chatId, response.get(i), true, false);
+                chatLogger.logChat(longchatId, response.get(i), false);
             }
         } else {
             sendResponse(update.getMessage().getChatId().toString(), "Please send text message", true, false);
@@ -71,17 +80,26 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
     }
 
     public void sendResponse(String chatId, String response, boolean enableMarkdown, boolean enableHtml) {
-        SendMessage message = new SendMessage(chatId, response);
-        message.enableMarkdown(enableMarkdown);
-        if (enableHtml) {
-            message.enableHtml(enableHtml);
+        List<String> responseList = Utils.splitToNChar(response, 4000);
+
+        for (String resp : responseList) {
+            if (null == resp || resp.trim().length() == 0) {
+                continue;
+            }
+
+            SendMessage message = new SendMessage(chatId, resp);
+            message.enableMarkdown(enableMarkdown);
+            if (enableHtml) {
+                message.enableHtml(enableHtml);
+            }
+
+            try {
+                execute(message); // Sending our message object to user
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
         }
 
-        try {
-            execute(message); // Sending our message object to user
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
     }
 
     // Not Used
@@ -99,7 +117,7 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
         try {
             log.debug("Response to publish ", message);
             String chatId = alert.getPhoneNumber().substring(alert.getPhoneNumber().indexOf(":") + 1);
-            sendVaccineUpdatestoSelf(message);
+            // sendVaccineUpdatestoSelf(message);
             sendResponse(chatId, message, true, false);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -111,13 +129,13 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
         String message = getAlertMessage(alert, avlResponseList);
         String chatId = alert.getPhoneNumber().substring(alert.getPhoneNumber().indexOf(":") + 1);
         sendVaccineUpdates(chatId, message);
-        sendVaccineUpdatestoSelf(message);
+        // sendVaccineUpdatestoSelf(message);
     }
 
     @Override
     public void sendVaccineUpdatestoSelf(Alerts alert, Set<AvlResponse> avlResponseList) {
         String message = getAlertMessage(alert, avlResponseList);
-        String chatId = "1813358994";
+        String chatId = appConfiguration.getDebugTelegramChatId();
         log.debug("Sending message " + message + "\n to chat id " + chatId);
         sendVaccineUpdates(chatId, message);
     }
@@ -132,7 +150,7 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
 
     @Async
     public void sendVaccineUpdatestoSelf(String message) {
-        String chatId = "1813358994";
+        String chatId = appConfiguration.getDebugTelegramChatId();
         try {
             sendResponse(chatId, message, true, false);
         } catch (Exception e) {
@@ -163,9 +181,16 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
         }
         updatedMessage.append("\n");
 
+        if (avlResponseList.size() > 15) {
+            updatedMessage.append("\n");
+            updatedMessage.append("More than 15 centers are avaialble for this alert. The message may come in parts");
+            updatedMessage.append("\n\n");
+        }
+
         Iterator<AvlResponse> itr = avlResponseList.iterator();
 
         while (itr.hasNext()) {
+
             AvlResponse res = itr.next();
             Set<CowinResponseSessions> set = res.getSessions();
             updatedMessage.append("\n\n");
@@ -181,7 +206,8 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
                     updatedMessage.append("Date: ").append(session.getDate()).append("\n");
                     updatedMessage.append("Age: ").append(session.getMin_age_limit()).append("\n");
                     updatedMessage.append("Fee: ").append(res.getFees()).append("\n");
-                    updatedMessage.append("Available Count: ").append(session.getAvailable_capacity()).append("\n");
+                    updatedMessage.append("Available Count: ").append(session.getAvailable_capacity())
+                            .append(session.getAvailable_capacity() <= 10 ? " Hurry! " : "").append("\n");
                     updatedMessage.append("-------------------");
                 }
             }
