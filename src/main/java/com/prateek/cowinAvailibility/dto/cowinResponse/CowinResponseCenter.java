@@ -23,6 +23,7 @@ public class CowinResponseCenter {
     private String to;
     private String fee_type;
     private List<CowinResponseSessions> sessions;
+    private List<CowinVaccineFees> vaccineFees;
 
     @Override
     public String toString() {
@@ -30,6 +31,14 @@ public class CowinResponseCenter {
                 + ", district_name=" + district_name + ", fee_type=" + fee_type + ", from=" + from + ", lat=" + lat
                 + ", name=" + name + ", pincode=" + pincode + ", sessions=" + sessions + ", state_name=" + state_name
                 + ", to=" + to + "]";
+    }
+
+    public List<CowinVaccineFees> getVaccineFees() {
+        return vaccineFees;
+    }
+
+    public void setVaccineFees(List<CowinVaccineFees> vaccineFees) {
+        this.vaccineFees = vaccineFees;
     }
 
     public int getCenter_id() {

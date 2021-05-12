@@ -17,6 +17,7 @@ import com.prateek.cowinAvailibility.dto.cowinResponse.AvlResponse;
 import com.prateek.cowinAvailibility.dto.cowinResponse.CowinResponse;
 import com.prateek.cowinAvailibility.dto.cowinResponse.CowinResponseCenter;
 import com.prateek.cowinAvailibility.dto.cowinResponse.CowinResponseSessions;
+import com.prateek.cowinAvailibility.dto.cowinResponse.CowinVaccineFees;
 import com.prateek.cowinAvailibility.entity.Alerts;
 import com.prateek.cowinAvailibility.entity.Notifications;
 import com.prateek.cowinAvailibility.repo.AlertRepo;
@@ -28,6 +29,7 @@ import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -132,10 +134,12 @@ public class CheckAvailivbilityService {
         for (int i = 0; i < response.getCenters().size(); i++) {
             CowinResponseCenter center = response.getCenters().get(i);
             Set<CowinResponseSessions> validSessions = new LinkedHashSet<CowinResponseSessions>();
+            String vaccineType = "";
 
             for (int j = 0; j < center.getSessions().size(); j++) {
 
                 CowinResponseSessions session = center.getSessions().get(j);
+                vaccineType = session.getVaccine();
                 if ((alert.getVaccineType().trim().equalsIgnoreCase("any")
                         || alert.getVaccineType().trim().equalsIgnoreCase(session.getVaccine()))
                         && alert.getAge() >= session.getMin_age_limit() && session.getAvailable_capacity() > 0) {
@@ -143,10 +147,25 @@ public class CheckAvailivbilityService {
                 }
             }
 
-            AvlResponse avlResponse = new AvlResponse(center.getCenter_id(), center.getName(), center.getAddress(),
-                    center.getPincode(), validSessions);
-            avlResponse.setFees(center.getFee_type());
             if (validSessions.size() > 0) {
+                AvlResponse avlResponse = new AvlResponse(center.getCenter_id(), center.getName(), center.getAddress(),
+                        center.getPincode(), validSessions);
+
+                if (center.getFee_type().equalsIgnoreCase("paid")
+                        && !CollectionUtils.isEmpty(center.getVaccineFees())) {
+                    for (int k = 0; k < center.getVaccineFees().size(); k++) {
+                        CowinVaccineFees fees = center.getVaccineFees().get(i);
+                        if (null != fees && fees.getVaccine().trim().equalsIgnoreCase(vaccineType)) {
+                            avlResponse.setFees(fees.getFees());
+                            break;
+                        } else {
+                            avlResponse.setFees(center.getFee_type());
+                        }
+                    }
+                } else {
+                    avlResponse.setFees(center.getFee_type());
+                }
+
                 avlResponseList.add(avlResponse);
             }
         }

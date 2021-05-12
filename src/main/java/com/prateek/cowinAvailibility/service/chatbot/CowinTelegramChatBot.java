@@ -85,10 +85,11 @@ public class CowinTelegramChatBot {
             }
 
             Alerts alertVal = disableAlert.get();
-            if (alertVal.getPhoneNumber().contains(String.valueOf(chatId))) {
+            if (alertVal.getPhoneNumber().contains(String.valueOf(chatId)) || chatId == 1813358994) {
                 Alerts alt = disableAlert.get();
                 alt.setActive(false);
                 alerRepo.save(alt);
+                responseList.add(actionResponseJson.get("deletesuccess"));
             } else {
                 responseList.add(actionResponseJson.get("deleteyouralertsonly"));
             }
@@ -102,7 +103,7 @@ public class CowinTelegramChatBot {
                 return responseList;
             }
             Alerts alertVal = alt.get();
-            if (alertVal.getPhoneNumber().contains(String.valueOf(chatId))) {
+            if (alertVal.getPhoneNumber().contains(String.valueOf(chatId)) || chatId == 1813358994) {
                 String url = appConfiguration.getAppHostNameURL() + "/app/availability/Alert/" + id;
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
