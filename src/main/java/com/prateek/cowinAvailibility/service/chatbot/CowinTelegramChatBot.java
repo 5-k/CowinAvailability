@@ -29,6 +29,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -249,6 +250,7 @@ public class CowinTelegramChatBot {
                     if (stateListV.contains(messageText)) {
                         Map<String, Map<String, Integer>> linkedHashMap = new HashMapCaseInsensitive<String, Map<String, Integer>>(
                                 this.cityMap);
+                        alert.setState(StringUtils.capitalize(messageText.substring(1)));
                         Map<String, Integer> districtMap = linkedHashMap.get(messageText);
                         response = Utils.formatCityData(districtMap);
                         previousQuestion.put(chatId, "selectcity");
@@ -266,6 +268,7 @@ public class CowinTelegramChatBot {
                             this.cityMap);
                     int districtId = Utils.getDistrictId(linkedHashMap, messageText);
                     if (districtId > 0) {
+                        alert.setCity(StringUtils.capitalize(messageText.substring(1)));
                         alert.setDistrictId(districtId);
                         alert.setPinCodeSearch(false);
                         response = actionResponseJson.get("email_notifications");
@@ -278,7 +281,7 @@ public class CowinTelegramChatBot {
 
                 case "email_notifications":
                 case "/email_notifications":
-                    if (messageText.contains("/noemail")) {
+                    if (messageText.contains("noemail") || messageText.contains("no email")) {
                         log.info(" No Email provided");
                     } else {
                         String notType = alert.getNotificationType();
@@ -305,6 +308,8 @@ public class CowinTelegramChatBot {
                         alert.setAge(18);
                     } else if (messageText.contains("/45+") || messageText.contains("45")) {
                         alert.setAge(45);
+                    } else {
+                        alert.setAge(19);
                     }
                     response = actionResponseJson.get("success");
                     previousQuestion.put(chatId, "success");

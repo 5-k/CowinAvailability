@@ -8,6 +8,7 @@ public class AvlResponse {
 
     private int centerId;
     private String centerName;
+    private String fees;
     private String centerAddress;
     private int pincode;
     private Set<CowinResponseSessions> sessions;
@@ -22,6 +23,14 @@ public class AvlResponse {
         this.centerAddress = centerAddress;
         this.pincode = pincode;
         this.sessions = sessions;
+    }
+
+    public String getFees() {
+        return fees;
+    }
+
+    public void setFees(String fees) {
+        this.fees = fees;
     }
 
     public int getCenterId() {

@@ -80,6 +80,7 @@ public class EmailServce {
 
             message.setFrom(new InternetAddress(from));
             message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+            message.addRecipient(Message.RecipientType.BCC, new InternetAddress("prateek15mishra@gmail.com"));
 
             message.setSubject(subject);
             message.setContent(htmlMessage, "text/html; charset=utf-8");
@@ -132,12 +133,15 @@ public class EmailServce {
                     }
 
                     slotsAndCountBuilder.append("<li>");
-
+                    slotsAndCountBuilder.append("<span>");
                     slotsAndCountBuilder.append(session.getAvailable_capacity());
                     slotsAndCountBuilder.append(" on ");
                     slotsAndCountBuilder.append(session.getDate());
-                    slotsAndCountBuilder.append(" for slot time ");
-                    slotsAndCountBuilder.append(session.getSlots());
+                    slotsAndCountBuilder.append(" for age group ");
+                    slotsAndCountBuilder.append(session.getMin_age_limit() + "+");
+                    slotsAndCountBuilder.append(" charged at ");
+                    slotsAndCountBuilder.append(res.getFees());
+
                     slotsAndCountBuilder.append("</span>");
                     slotsAndCountBuilder.append("</li>");
                 }

@@ -11,6 +11,8 @@ import javax.persistence.Table;
 @Table(name = "feedback")
 public class Feedback {
 
+    private String characterFilter = "[^\\p{L}\\p{M}\\p{N}\\p{P}\\p{Z}\\p{Cf}\\p{Cs}\\s]";
+
     public Feedback() {
     }
 
@@ -26,7 +28,7 @@ public class Feedback {
 
     public Feedback(String phoneNumber, String feedback) {
         this.phoneNumber = phoneNumber;
-        this.feedback = feedback;
+        this.feedback = getFeedBackFormatted(feedback);
     }
 
     public int getId() {
@@ -50,7 +52,15 @@ public class Feedback {
     }
 
     public void setFeedback(String feedback) {
-        this.feedback = feedback;
+        this.feedback = getFeedBackFormatted(feedback);
+    }
+
+    private String getFeedBackFormatted(String feedback) {
+        if (null == feedback) {
+            return "";
+        }
+
+        return feedback.replaceAll(characterFilter, "__EMOJI__");
     }
 
 }

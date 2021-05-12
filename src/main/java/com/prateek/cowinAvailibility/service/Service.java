@@ -85,7 +85,7 @@ public class Service {
         return 1;
     }
 
-    public void sendEmail(int id) {
+    public void sendWelcomeEmail(int id) {
         Alerts alert = alertRepo.findById(id).get();
         emailServce.sendWelcomeMessage(alert);
     }

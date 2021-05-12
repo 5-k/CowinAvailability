@@ -8,6 +8,7 @@ import java.util.Set;
 import com.prateek.cowinAvailibility.configuration.AppConfiguration;
 import com.prateek.cowinAvailibility.dto.cowinResponse.AvlResponse;
 import com.prateek.cowinAvailibility.entity.Alerts;
+import com.prateek.cowinAvailibility.service.chatbot.ITelegramSlotPoller;
 import com.prateek.cowinAvailibility.service.chatbot.TelegramSlotPoller;
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
@@ -15,6 +16,7 @@ import com.twilio.rest.api.v2010.account.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,7 +30,8 @@ public class NotificationService {
     private EmailServce emailServce;
 
     @Autowired
-    private TelegramSlotPoller telegramService;
+    @Qualifier("telegramSlotPoller")
+    private ITelegramSlotPoller telegramService;
 
     public String sendWhatsAppMessage(Alerts alert, Set<AvlResponse> avlResponseList) {
 

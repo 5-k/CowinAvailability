@@ -14,7 +14,7 @@ import org.springframework.core.io.ClassPathResource;
 
 public class Test {
 
-    public static void main(String args[]) {
+    public static void main1(String args[]) {
 
         try {
             Map<String, ?> statessListMap = new ObjectMapper().readValue(new ClassPathResource("state.json").getFile(),

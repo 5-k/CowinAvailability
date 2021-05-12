@@ -30,6 +30,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.*;
 
 import org.slf4j.Logger;
@@ -53,7 +54,8 @@ public class CheckAvailivbilityService {
     private NotificationService notificationService;
 
     @Autowired
-    private NotificationsRepo notificationsRepo;
+    @Qualifier("generateNotificationService")
+    private IGenerateNotificationService generateNotificationService;
 
     @PostConstruct
     public void PostConstruct() {
@@ -91,7 +93,7 @@ public class CheckAvailivbilityService {
             log.warn("List AvlResponse size = " + avlResponseList.size());
 
             if (avlResponseList.size() > 0) {
-                notifyUsers(alert, avlResponseList);
+                generateNotificationService.notifyUsers(alert, avlResponseList);
             } else {
                 log.info("Nothing to notify ");
             }
@@ -143,6 +145,7 @@ public class CheckAvailivbilityService {
 
             AvlResponse avlResponse = new AvlResponse(center.getCenter_id(), center.getName(), center.getAddress(),
                     center.getPincode(), validSessions);
+            avlResponse.setFees(center.getFee_type());
             if (validSessions.size() > 0) {
                 avlResponseList.add(avlResponse);
             }
@@ -153,91 +156,6 @@ public class CheckAvailivbilityService {
         }
 
         return avlResponseList;
-    }
-
-    @Async
-    private void notifyUsers(Alerts alert, Set<AvlResponse> avlResponseList) {
-        List<Notifications> notifications = notificationsRepo.findByAlertId(alert.getId());
-
-        if (null == notifications) {
-            log.debug("No Notification found for alert id : " + alert.getId());
-            notifications = new ArrayList<>();
-        }
-
-        Collections.sort(notifications);
-        Date currentDate = new Date();
-        int notificationSentToday = 0;
-
-        for (int i = 0; i < notifications.size(); i++) {
-            Notifications notification = notifications.get(i);
-            if (notification.getCreatedAt().getDate() == currentDate.getDate()
-                    && notification.getCreatedAt().getMonth() == currentDate.getMonth()
-                    && notification.getCreatedAt().getYear() == currentDate.getYear()) {
-                notificationSentToday++;
-            }
-        }
-
-        if (notificationSentToday >= this.appConfiguration.getMaxNotificationPerAlertPerDay()) {
-            log.info("Already getMaxNotificationPerAlertPerDay notification issued to this mobile number:  for alert "
-                    + alert.toString() + " Not issuing current one");
-            return;
-        } else if (notificationSentToday > 0) {
-            Notifications notification = notifications.get(0); // Latest Notificiation
-            if (notification.getCreatedAt().getDate() == currentDate.getDate()
-                    && notification.getCreatedAt().getMonth() == currentDate.getMonth()
-                    && notification.getCreatedAt().getYear() == currentDate.getYear()) {
-                long td = currentDate.getTime() - notification.getCreatedAt().getTime();
-                long timeinMinutes = (td) / 1000 / 60;
-                log.info("Last Notification sent at : " + notification.getCreatedAt() + " and current time is "
-                        + currentDate.getDate() + " and their time difference in millis is " + td
-                        + " and in minutes is " + timeinMinutes);
-
-                if (timeinMinutes < 40) {
-
-                    log.info("Max notification is 1 every 40 minutes, not sending notification for " + alert);
-                    return;
-                }
-            }
-        }
-
-        String alerts = alert.getNotificationType();
-        if (null != alerts) {
-            String alertList[] = alerts.split(",");
-            for (int i = 0; i < alertList.length; i++) {
-                notify(alert, avlResponseList, Integer.parseInt(alertList[i]));
-            }
-        }
-
-        log.info("Successfully returning from Notifications");
-    }
-
-    private void notify(Alerts alert, Set<AvlResponse> avlResponseList, int notificationType) {
-        String cost = "";
-        log.info("Notifaction for Alert for notification type: " + notificationType);
-        switch (notificationType) {
-
-            case 0:
-                cost = notificationService.sendWhatsAppMessage(alert, avlResponseList);
-                break;
-
-            case 1:
-                cost = notificationService.sendTestMessage(alert, avlResponseList);
-                break;
-
-            case 2:
-                cost = notificationService.sendEmail(alert, avlResponseList);
-                break;
-
-            case 3:
-                cost = notificationService.sendTelegramMessage(alert, avlResponseList);
-                break;
-        }
-
-        Notifications not = new Notifications(new Date(), alert.getPhoneNumber(), alert.getId(), cost,
-                notificationType);
-        notificationsRepo.save(not);
-
-        log.info("Successfully returning from Notifications");
     }
 
     public CowinResponse checkAvlByDistrict(int districtId) {

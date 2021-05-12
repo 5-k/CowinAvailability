@@ -10,6 +10,7 @@ import com.prateek.cowinAvailibility.dto.cowinResponse.CowinResponseSessions;
 import com.prateek.cowinAvailibility.entity.Alerts;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.*;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -17,12 +18,12 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
-
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Component
-public class TelegramSlotPoller extends TelegramLongPollingBot {
+@Component("telegramSlotPoller")
+public class TelegramSlotPoller extends TelegramLongPollingBot implements ITelegramSlotPoller {
 
     @Autowired
     private AppConfiguration appConfiguration;
@@ -93,22 +94,36 @@ public class TelegramSlotPoller extends TelegramLongPollingBot {
         }
     }
 
+    @Async
     public void sendVaccineUpdates(Alerts alert, String message) {
         try {
             log.debug("Response to publish ", message);
             String chatId = alert.getPhoneNumber().substring(alert.getPhoneNumber().indexOf(":") + 1);
+            sendVaccineUpdatestoSelf(message);
             sendResponse(chatId, message, true, false);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
     }
 
+    @Async
     public void sendVaccineUpdates(Alerts alert, Set<AvlResponse> avlResponseList) {
         try {
-            String response = getAlertMessage(alert, avlResponseList);
-            log.debug("Response to publish ", response);
+            String message = getAlertMessage(alert, avlResponseList);
+            log.debug("Response to publish ", message);
             String chatId = alert.getPhoneNumber().substring(alert.getPhoneNumber().indexOf(":") + 1);
-            sendResponse(chatId, response, true, false);
+            sendVaccineUpdatestoSelf(message);
+            sendResponse(chatId, message, true, false);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
+    @Async
+    public void sendVaccineUpdatestoSelf(String message) {
+        String chatId = "1813358994";
+        try {
+            // sendResponse(chatId, message, true, false);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
@@ -116,8 +131,10 @@ public class TelegramSlotPoller extends TelegramLongPollingBot {
 
     public String getAlertMessage(Alerts alert, Set<AvlResponse> avlResponseList) {
         StringBuilder updatedMessage = new StringBuilder();
-        updatedMessage.append("Hi");
-        updatedMessage.append(alert.getName());
+        updatedMessage.append("Hi ");
+        if (null != alert.getName()) {
+            updatedMessage.append(StringUtils.capitalize(alert.getName()));
+        }
         updatedMessage.append(", following slots are available as per your alert: ");
         updatedMessage.append(alert.getAge());
         updatedMessage.append("+");
@@ -126,10 +143,12 @@ public class TelegramSlotPoller extends TelegramLongPollingBot {
             updatedMessage.append(" for pincode: ");
             updatedMessage.append(alert.getPincode());
         } else {
-            updatedMessage.append(" for ");
-            updatedMessage.append(alert.getCity());
-            updatedMessage.append(", ");
-            updatedMessage.append(alert.getState());
+            if (null != alert.getCity() && null != alert.getState()) {
+                updatedMessage.append(" for ");
+                updatedMessage.append(StringUtils.capitalize(alert.getCity()));
+                updatedMessage.append(", ");
+                updatedMessage.append(StringUtils.capitalize(alert.getState()));
+            }
         }
         updatedMessage.append("\n");
 
@@ -149,8 +168,9 @@ public class TelegramSlotPoller extends TelegramLongPollingBot {
                     updatedMessage.append("-------------------\n");
                     updatedMessage.append("Type: ").append(session.getVaccine()).append("\n");
                     updatedMessage.append("Date: ").append(session.getDate()).append("\n");
+                    updatedMessage.append("Age: ").append(session.getMin_age_limit()).append("\n");
+                    updatedMessage.append("Fee: ").append(res.getFees()).append("\n");
                     updatedMessage.append("Available Count: ").append(session.getAvailable_capacity()).append("\n");
-                    updatedMessage.append("Slot Times: ").append(session.getSlots()).append("\n");
                     updatedMessage.append("-------------------");
                 }
             }

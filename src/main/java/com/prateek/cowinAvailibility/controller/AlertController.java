@@ -109,9 +109,9 @@ public class AlertController {
         }
     }
 
-    @RequestMapping(value = "/app/Alerts/email/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> notifyEmailUser(@PathVariable int id) {
-        service.sendEmail(id);
+    @RequestMapping(value = "/app/Alerts/sendWelcomeEmail/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> sendWelcomeEmail(@PathVariable int id) {
+        service.sendWelcomeEmail(id);
         return new ResponseEntity("Email Sent!", HttpStatus.OK);
     }
 
