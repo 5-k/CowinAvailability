@@ -13,4 +13,5 @@ public interface ITelegramSlotPoller {
 
     public void sendVaccineUpdatestoSelf(String message);
 
+    public void sendResponse(String chatId, String response, boolean enableMarkdown, boolean enableHtml);
 }

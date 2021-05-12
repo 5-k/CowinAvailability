@@ -79,27 +79,48 @@ public class CowinTelegramChatBot {
         if (messageText.contains("stopupdatesforalert")) {
             String id = messageText.substring("stopupdatesforalert".length() + 1);
             Optional<Alerts> disableAlert = alerRepo.findById(Integer.parseInt(id));
-            if (null != disableAlert && disableAlert.isPresent()) {
+            if (null == disableAlert || !disableAlert.isPresent()) {
+                responseList.add(actionResponseJson.get("nosuchalert"));
+                return responseList;
+            }
+
+            Alerts alertVal = disableAlert.get();
+            if (alertVal.getPhoneNumber().contains(String.valueOf(chatId))) {
                 Alerts alt = disableAlert.get();
                 alt.setActive(false);
                 alerRepo.save(alt);
+            } else {
+                responseList.add(actionResponseJson.get("deleteyouralertsonly"));
             }
-            responseList.add(actionResponseJson.get("disableAlert"));
+
             return responseList;
         } else if (messageText.contains("fetchlatestupdatefor")) {
-            String id = messageText.substring("fetchlatestupdatefor".length() + 1);
-            String url = appConfiguration.getAppHostNameURL() + "/app/availability/Alert/" + id;
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-            headers.add("user-agent",
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36");
-            org.springframework.http.HttpEntity<String> entity = new org.springframework.http.HttpEntity<String>(
-                    "parameters", headers);
-            RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<JsonResponse> res = restTemplate.exchange(url, HttpMethod.GET, entity, JsonResponse.class);
-            log.info("Response, " + res.getStatusCode() + "- " + res.getBody());
-            return responseList;
+            int id = Integer.parseInt(messageText.substring("fetchlatestupdatefor".length() + 1));
+            Optional<Alerts> alt = alerRepo.findById(id);
+            if (null == alt || !alt.isPresent()) {
+                responseList.add(actionResponseJson.get("nosuchalert"));
+                return responseList;
+            }
+            Alerts alertVal = alt.get();
+            if (alertVal.getPhoneNumber().contains(String.valueOf(chatId))) {
+                String url = appConfiguration.getAppHostNameURL() + "/app/availability/Alert/" + id;
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+                headers.add("user-agent",
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36");
+                org.springframework.http.HttpEntity<String> entity = new org.springframework.http.HttpEntity<String>(
+                        "parameters", headers);
+                RestTemplate restTemplate = new RestTemplate();
+                ResponseEntity<JsonResponse> res = restTemplate.exchange(url, HttpMethod.GET, entity,
+                        JsonResponse.class);
+                log.info("Response, " + res.getStatusCode() + "- " + res.getBody());
+                return responseList;
+            } else {
+                responseList.add(actionResponseJson.get("fetchonlyyouralerts"));
+                return responseList;
+            }
+
         }
 
         switch (messageText) {

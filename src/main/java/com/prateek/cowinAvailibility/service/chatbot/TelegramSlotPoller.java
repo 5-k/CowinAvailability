@@ -123,7 +123,7 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
     public void sendVaccineUpdatestoSelf(String message) {
         String chatId = "1813358994";
         try {
-            // sendResponse(chatId, message, true, false);
+            sendResponse(chatId, message, true, false);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

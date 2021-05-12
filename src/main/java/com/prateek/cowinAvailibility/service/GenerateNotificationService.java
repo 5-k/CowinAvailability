@@ -82,8 +82,7 @@ public class GenerateNotificationService implements IGenerateNotificationService
                         + timeinMinutes);
 
                 if (timeinMinutes < 30) {
-
-                    log.info("Max notification is 1 every 40 minutes, not sending notification for " + alert);
+                    log.info("Max notification is 1 every 30 minutes, not sending notification for " + alert);
                     return;
                 }
             }
@@ -124,6 +123,7 @@ public class GenerateNotificationService implements IGenerateNotificationService
 
         Notifications not = new Notifications(date, alert.getPhoneNumber(), alert.getId(), cost, notificationType);
         notificationsRepo.save(not);
+        log.info("Notifiication saved");
 
         log.info("Successfully returning from Notifications");
     }
