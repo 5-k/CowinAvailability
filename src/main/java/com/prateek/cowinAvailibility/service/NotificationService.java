@@ -49,13 +49,22 @@ public class NotificationService {
         return "";
     }
 
-    public String sendTelegramMessage(Alerts alert, Set<AvlResponse> avlResponseList) {
-        telegramService.sendVaccineUpdates(alert, avlResponseList);
+    public String sendTelegramMessage(Alerts alert, Set<AvlResponse> avlResponseList, boolean debug) {
+        if (debug) {
+            telegramService.sendVaccineUpdatestoSelf(alert, avlResponseList);
+        } else {
+            telegramService.sendVaccineUpdates(alert, avlResponseList);
+        }
+
         return "0";
     }
 
-    public String sendTelegramUpdate(Alerts alert, String data) {
-        telegramService.sendVaccineUpdates(alert, data);
+    public String sendTelegramUpdate(Alerts alert, String data, boolean debug) {
+        if (debug) {
+            telegramService.sendVaccineUpdatestoSelf(data);
+        } else {
+            telegramService.sendVaccineUpdates(alert, data);
+        }
         return "0";
     }
 

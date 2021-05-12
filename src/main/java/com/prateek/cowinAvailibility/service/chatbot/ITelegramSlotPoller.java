@@ -11,6 +11,8 @@ public interface ITelegramSlotPoller {
 
     public void sendVaccineUpdates(Alerts alert, Set<AvlResponse> avlResponseList);
 
+    public void sendVaccineUpdatestoSelf(Alerts alert, Set<AvlResponse> avlResponseList);
+
     public void sendVaccineUpdatestoSelf(String message);
 
     public void sendResponse(String chatId, String response, boolean enableMarkdown, boolean enableHtml);

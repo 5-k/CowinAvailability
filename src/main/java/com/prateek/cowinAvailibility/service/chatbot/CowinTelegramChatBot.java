@@ -1,6 +1,5 @@
 package com.prateek.cowinAvailibility.service.chatbot;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -10,7 +9,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.PostConstruct;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpHeaders;
 import com.prateek.cowinAvailibility.configuration.AppConfiguration;
 import com.prateek.cowinAvailibility.entity.Alerts;
@@ -23,7 +21,6 @@ import com.prateek.cowinAvailibility.utility.JsonResponse;
 import com.prateek.cowinAvailibility.utility.Utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -104,7 +101,13 @@ public class CowinTelegramChatBot {
             }
             Alerts alertVal = alt.get();
             if (alertVal.getPhoneNumber().contains(String.valueOf(chatId)) || chatId == 1813358994) {
-                String url = appConfiguration.getAppHostNameURL() + "/app/availability/Alert/" + id;
+                String url;
+                if (chatId == 1813358994) {
+                    url = appConfiguration.getAppHostNameURL() + "/app/availabilityDebug/Alert/" + id;
+                } else {
+                    url = appConfiguration.getAppHostNameURL() + "/app/availability/Alert/" + id;
+                }
+
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
                 headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));

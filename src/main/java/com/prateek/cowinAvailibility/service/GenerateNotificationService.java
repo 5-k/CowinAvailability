@@ -117,7 +117,7 @@ public class GenerateNotificationService implements IGenerateNotificationService
                 break;
 
             case 3:
-                cost = notificationService.sendTelegramMessage(alert, avlResponseList);
+                cost = notificationService.sendTelegramMessage(alert, avlResponseList, false);
                 break;
         }
 

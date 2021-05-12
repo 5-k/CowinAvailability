@@ -19,9 +19,7 @@ import com.prateek.cowinAvailibility.dto.cowinResponse.CowinResponseCenter;
 import com.prateek.cowinAvailibility.dto.cowinResponse.CowinResponseSessions;
 import com.prateek.cowinAvailibility.dto.cowinResponse.CowinVaccineFees;
 import com.prateek.cowinAvailibility.entity.Alerts;
-import com.prateek.cowinAvailibility.entity.Notifications;
 import com.prateek.cowinAvailibility.repo.AlertRepo;
-import com.prateek.cowinAvailibility.repo.NotificationsRepo;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -59,6 +57,9 @@ public class CheckAvailivbilityService {
     @Qualifier("generateNotificationService")
     private IGenerateNotificationService generateNotificationService;
 
+    @Autowired
+    private TelegramMessagingService telegramMessagingService;
+
     @PostConstruct
     public void PostConstruct() {
         this.formatter = new SimpleDateFormat(this.appConfiguration.getDateFormat());
@@ -70,7 +71,7 @@ public class CheckAvailivbilityService {
         checkContiniousAVL();
     }
 
-    @Scheduled(cron = "0 0/20 * * * ?")
+    @Scheduled(cron = "0 0/17 * * * ?")
     @Async
     // @Scheduled(cron = "0 * * * * *")
     public void checkContiniousAVL() {
@@ -91,18 +92,23 @@ public class CheckAvailivbilityService {
             CowinResponse response = getResponseForAlert(alert);
             log.debug("Got response from cowin");
 
-            Set<AvlResponse> avlResponseList = processResponse(alert, response);
-            log.warn("List AvlResponse size = " + avlResponseList.size());
+            if (null != response) {
+                Set<AvlResponse> avlResponseList = processResponse(alert, response);
+                log.warn("List AvlResponse size = " + avlResponseList.size());
 
-            if (avlResponseList.size() > 0) {
-                generateNotificationService.notifyUsers(alert, avlResponseList);
+                if (avlResponseList.size() > 0) {
+                    generateNotificationService.notifyUsers(alert, avlResponseList);
+                } else {
+                    log.info("Nothing to notify ");
+                }
             } else {
-                log.info("Nothing to notify ");
+                log.error("Response is null");
             }
+
         }
     }
 
-    public void refreshAvl(int id) {
+    public void refreshAvl(int id, boolean debug) {
         Optional<Alerts> alertVal = alertRepo.findById(id);
         if (alertVal.isPresent()) {
             Alerts alert = alertVal.get();
@@ -110,9 +116,9 @@ public class CheckAvailivbilityService {
             Set<AvlResponse> avlResponseList = processResponse(alert, response);
             if (avlResponseList.isEmpty()) {
                 notificationService.sendTelegramUpdate(alert,
-                        "Currently no vaccine is available as per the for Alert: " + id);
+                        "Currently no vaccine is available as per the for Alert: " + id, debug);
             } else {
-                notificationService.sendTelegramMessage(alert, avlResponseList);
+                notificationService.sendTelegramMessage(alert, avlResponseList, debug);
             }
         }
     }
@@ -143,7 +149,14 @@ public class CheckAvailivbilityService {
                 if ((alert.getVaccineType().trim().equalsIgnoreCase("any")
                         || alert.getVaccineType().trim().equalsIgnoreCase(session.getVaccine()))
                         && alert.getAge() >= session.getMin_age_limit() && session.getAvailable_capacity() > 0) {
-                    validSessions.add(session);
+                    if (session.getAvailable_capacity() > 1) {
+                        validSessions.add(session);
+                    } else {
+                        log.warn("getAvailable_capacity capacity is 1 only");
+                        telegramMessagingService.sendMessageToId(1813358994,
+                                center.getName() + "-" + center.getPincode() + "  capacity is 1 only");
+                    }
+
                 }
             }
 

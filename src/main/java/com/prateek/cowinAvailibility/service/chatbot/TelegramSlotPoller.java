@@ -108,11 +108,22 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
 
     @Async
     public void sendVaccineUpdates(Alerts alert, Set<AvlResponse> avlResponseList) {
+        String message = getAlertMessage(alert, avlResponseList);
+        String chatId = alert.getPhoneNumber().substring(alert.getPhoneNumber().indexOf(":") + 1);
+        sendVaccineUpdates(chatId, message);
+        sendVaccineUpdatestoSelf(message);
+    }
+
+    @Override
+    public void sendVaccineUpdatestoSelf(Alerts alert, Set<AvlResponse> avlResponseList) {
+        String message = getAlertMessage(alert, avlResponseList);
+        String chatId = "1813358994";
+        log.debug("Sending message " + message + "\n to chat id " + chatId);
+        sendVaccineUpdates(chatId, message);
+    }
+
+    private void sendVaccineUpdates(String chatId, String message) {
         try {
-            String message = getAlertMessage(alert, avlResponseList);
-            log.debug("Response to publish ", message);
-            String chatId = alert.getPhoneNumber().substring(alert.getPhoneNumber().indexOf(":") + 1);
-            sendVaccineUpdatestoSelf(message);
             sendResponse(chatId, message, true, false);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
