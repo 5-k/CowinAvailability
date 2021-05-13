@@ -109,11 +109,11 @@ public class CowinTelegramChatBot {
                     || stringChatId.equals(appConfiguration.getDebugTelegramChatId())) {
                 String url;
                 if (stringChatId.equals(appConfiguration.getDebugTelegramChatId())) {
-                    url = appConfiguration.getAppHostNameURL() + "/app/availabilityDebug/Alert/" + id;
+                    url = appConfiguration.getHost() + "/api/availabilityDebug/Alert/" + id;
                 } else {
-                    url = appConfiguration.getAppHostNameURL() + "/app/availability/Alert/" + id;
+                    url = appConfiguration.getHost() + "/api/availability/Alert/" + id;
                 }
-
+                log.info("Url call initated : " + url);
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
                 headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));

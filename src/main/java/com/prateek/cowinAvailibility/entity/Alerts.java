@@ -1,11 +1,17 @@
 package com.prateek.cowinAvailibility.entity;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -71,6 +77,28 @@ public class Alerts {
 
     @Column(name = "notification_type")
     private String notificationType; // 0 Whatsapp, 1 sms, 2 Email, 3 Telegram {Comma Seperated List Expected}
+
+    @OneToMany(mappedBy = "alert", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<Notifications> notifications;
+
+    public void addNotifications(Notifications not) {
+        if (null == notifications) {
+            this.notifications = new ArrayList<>();
+        }
+        not.setAlert(this);
+        this.notifications.add(not);
+    }
+
+    public List<Notifications> getNotifications() {
+        if (null == notifications) {
+            this.notifications = new ArrayList<>();
+        }
+        return notifications;
+    }
+
+    public void setNotifications(List<Notifications> notifications) {
+        this.notifications = notifications;
+    }
 
     public String getEmail() {
         return email;

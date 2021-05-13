@@ -8,6 +8,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,14 +31,23 @@ public class Notifications implements Comparable<Notifications>, Comparator<Noti
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(name = "alert_id")
-    private int alertId;
-
     @Column(name = "notification_cost")
     private String notificationCost;
 
     @Column(name = "notification_type")
     private int notificationType;
+
+    @ManyToOne
+    @JoinColumn(name = "alert_id")
+    private Alerts alert;
+
+    public Alerts getAlert() {
+        return alert;
+    }
+
+    public void setAlert(Alerts alert) {
+        this.alert = alert;
+    }
 
     public String getNotificationCost() {
         return notificationCost;
@@ -73,14 +84,6 @@ public class Notifications implements Comparable<Notifications>, Comparator<Noti
         this.phoneNumber = phoneNumber;
     }
 
-    public int getAlertId() {
-        return alertId;
-    }
-
-    public void setAlertId(int alertId) {
-        this.alertId = alertId;
-    }
-
     public int getNotificationType() {
         return notificationType;
     }
@@ -89,23 +92,23 @@ public class Notifications implements Comparable<Notifications>, Comparator<Noti
         this.notificationType = notificationType;
     }
 
-    public Notifications(int id, Date createdAt, String phoneNumber, int alertId, String notificationCost,
+    public Notifications(int id, Date createdAt, String phoneNumber, Alerts alert, String notificationCost,
             int notificationType) {
         this.id = id;
         this.createdAt = createdAt;
         this.phoneNumber = phoneNumber;
-        this.alertId = alertId;
         this.notificationCost = notificationCost;
         this.notificationType = notificationType;
+        this.alert = alert;
     }
 
-    public Notifications(Date createdAt, String phoneNumber, int alertId, String notificationCost,
+    public Notifications(Date createdAt, String phoneNumber, Alerts alert, String notificationCost,
             int notificationType) {
         this.createdAt = createdAt;
         this.phoneNumber = phoneNumber;
-        this.alertId = alertId;
         this.notificationCost = notificationCost;
         this.notificationType = notificationType;
+        this.alert = alert;
     }
 
     @Override

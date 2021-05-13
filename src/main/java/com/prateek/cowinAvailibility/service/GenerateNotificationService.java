@@ -1,17 +1,12 @@
 package com.prateek.cowinAvailibility.service;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
-import com.prateek.cowinAvailibility.configuration.AppConfiguration;
 import com.prateek.cowinAvailibility.dto.cowinResponse.AvlResponse;
 import com.prateek.cowinAvailibility.entity.Alerts;
 import com.prateek.cowinAvailibility.entity.Notifications;
-import com.prateek.cowinAvailibility.repo.NotificationsRepo;
+import com.prateek.cowinAvailibility.repo.AlertRepo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,69 +20,14 @@ public class GenerateNotificationService implements IGenerateNotificationService
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private AppConfiguration appConfiguration;
-
-    @Autowired
     private NotificationService notificationService;
 
     @Autowired
-    private NotificationsRepo notificationsRepo;
+    private AlertRepo alertRepo;
 
     @Async
     public void notifyUsers(Alerts alert, Set<AvlResponse> avlResponseList) {
         Date currentDate = new Date();
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(currentDate);
-        cal.add(Calendar.DATE, -1);
-
-        List<Notifications> notifications = notificationsRepo.findByAlertIdAndCreatedAtAfter(alert.getId(),
-                cal.getTime());
-
-        if (null == notifications) {
-            log.debug("No Notification found for alert id : " + alert.getId());
-            notifications = new ArrayList<Notifications>();
-        }
-
-        cal.add(Calendar.DATE, 1);
-
-        Collections.sort(notifications);
-        int notificationSentToday = 0;
-
-        for (int i = 0; i < notifications.size(); i++) {
-            Calendar cal2 = Calendar.getInstance();
-            cal2.setTime(notifications.get(i).getCreatedAt());
-
-            if (cal2.get(Calendar.DATE) == cal.get(Calendar.DATE) && cal2.get(Calendar.MONTH) == cal.get(Calendar.MONTH)
-                    && cal2.get(Calendar.YEAR) == cal.get(Calendar.YEAR)) {
-                notificationSentToday++;
-            }
-        }
-
-        if (notificationSentToday >= this.appConfiguration.getMaxNotificationPerAlertPerDay()) {
-            log.info("Already getMaxNotificationPerAlertPerDay notification issued to this mobile number:  for alert "
-                    + alert.toString() + " Not issuing current one");
-            return;
-        } else if (notificationSentToday > 0) {
-            Notifications notification = notifications.get(0); // Latest Notificiation
-            Calendar latestNotification = Calendar.getInstance();
-
-            if (latestNotification.get(Calendar.DATE) == cal.get(Calendar.DATE)
-                    && latestNotification.get(Calendar.MONTH) == cal.get(Calendar.MONTH)
-                    && latestNotification.get(Calendar.YEAR) == cal.get(Calendar.YEAR)) {
-                long td = currentDate.getTime() - notification.getCreatedAt().getTime();
-                long timeinMinutes = (td) / 1000 / 60;
-                log.info("Last Notification sent at : " + notification.getCreatedAt() + " and current time is "
-                        + cal.getTime() + " and their time difference in millis is " + td + " and in minutes is "
-                        + timeinMinutes);
-
-                if (timeinMinutes < appConfiguration.getTimeDifferenceBetweenPreviousNotificationInMins()) {
-                    log.info("Max notification is 1 every "
-                            + appConfiguration.getTimeDifferenceBetweenPreviousNotificationInMins()
-                            + ", not sending notification for " + alert);
-                    return;
-                }
-            }
-        }
 
         String alerts = alert.getNotificationType();
         if (null != alerts) {
@@ -122,8 +62,9 @@ public class GenerateNotificationService implements IGenerateNotificationService
                 break;
         }
 
-        Notifications not = new Notifications(date, alert.getPhoneNumber(), alert.getId(), cost, notificationType);
-        notificationsRepo.save(not);
+        Notifications not2 = new Notifications(date, alert.getPhoneNumber(), alert, cost, notificationType);
+        alert.getNotifications().add(not2);
+        alertRepo.save(alert);
         log.info("Notifiication saved");
 
         log.info("Successfully returning from Notifications");

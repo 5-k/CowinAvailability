@@ -37,9 +37,9 @@ public class AppConfiguration {
 
     private int timeDifferenceBetweenPreviousNotificationInMins;
 
-    private String appHostNameURL;
-
     private String appHost;
+
+    private String host;
 
     private int appPort;
 
@@ -80,19 +80,19 @@ public class AppConfiguration {
     }
 
     public String getAppHostNameURL() {
-        return appHostNameURL;
-    }
-
-    public void setAppHostNameURL(String appHostNameURL) {
-        this.appHostNameURL = appHostNameURL;
-    }
-
-    public String getAppHost() {
         return appHost;
     }
 
-    public void setAppHost(String appHost) {
-        this.appHost = appHost;
+    public void setAppHostNameURL(String appHostNameURL) {
+        this.appHost = appHostNameURL;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
     }
 
     public int getAppPort() {

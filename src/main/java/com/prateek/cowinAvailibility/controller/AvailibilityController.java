@@ -56,7 +56,7 @@ public class AvailibilityController {
     }
 
     @SuppressWarnings("unchecked")
-    @RequestMapping(value = "/app/availability/Alert/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/availability/Alert/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> fetchAlertData(@PathVariable int id) {
         log.info("Refresh /app/availability/Alert/" + id);
 
@@ -71,7 +71,7 @@ public class AvailibilityController {
     }
 
     @SuppressWarnings("unchecked")
-    @RequestMapping(value = "/app/availabilityDebug/Alert/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/api/availabilityDebug/Alert/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> fetchAlertDataDebug(@PathVariable int id) {
         log.info("Refresh /app/availability/Alert/" + id);
 

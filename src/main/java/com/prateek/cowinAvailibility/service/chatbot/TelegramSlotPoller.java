@@ -181,16 +181,16 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
         }
         updatedMessage.append("\n");
 
-        if (avlResponseList.size() > 15) {
+        if (avlResponseList.size() > 10) {
             updatedMessage.append("\n");
-            updatedMessage.append("More than 15 centers are avaialble for this alert. The message may come in parts");
+            updatedMessage.append("More than 10 centers are avaialble for this alert. The message may come in parts");
             updatedMessage.append("\n\n");
         }
 
         Iterator<AvlResponse> itr = avlResponseList.iterator();
-
+        int i = 0;
         while (itr.hasNext()) {
-
+            i++;
             AvlResponse res = itr.next();
             Set<CowinResponseSessions> set = res.getSessions();
             updatedMessage.append("\n\n");
@@ -199,19 +199,37 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
 
             if (null != set && set.size() > 0) {
                 Iterator<CowinResponseSessions> itr2 = set.iterator();
+                int j = 0;
+
                 while (itr2.hasNext()) {
-                    CowinResponseSessions session = itr2.next();
-                    updatedMessage.append("-------------------\n");
-                    updatedMessage.append("Type: ").append(session.getVaccine()).append("\n");
-                    updatedMessage.append("Date: ").append(session.getDate()).append("\n");
-                    updatedMessage.append("Age: ").append(session.getMin_age_limit()).append("\n");
-                    updatedMessage.append("Fee: ").append(res.getFees()).append("\n");
-                    updatedMessage.append("Available Count: ").append(session.getAvailable_capacity())
-                            .append(session.getAvailable_capacity() <= 10 ? " Hurry! " : "").append("\n");
-                    updatedMessage.append("-------------------");
+                    j++;
+                    if (j == 1) {
+                        CowinResponseSessions session = itr2.next();
+                        updatedMessage.append("-------------------\n");
+                        updatedMessage.append("Type: ").append(session.getVaccine()).append("\n");
+                        updatedMessage.append("Date: ").append(session.getDate()).append("\n");
+                        updatedMessage.append("Age: ").append(session.getMin_age_limit()).append("\n");
+                        updatedMessage.append("Fee: ").append(res.getFees()).append("\n");
+                        updatedMessage.append("Available Count: ").append(session.getAvailable_capacity())
+                                .append(session.getAvailable_capacity() <= 10 ? " Hurry! " : "").append("\n");
+                        updatedMessage.append("-------------------");
+                    } else {
+                        CowinResponseSessions session = itr2.next();
+                        updatedMessage.append("\n-------------------\n");
+                        updatedMessage.append(session.getAvailable_capacity()).append(" more available on  ")
+                                .append(session.getDate()).append("\n");
+                        updatedMessage.append("-------------------");
+                    }
+
                 }
+                updatedMessage.append("\n");
             }
-            updatedMessage.append("-------------------");
+
+            if (i > 12) {
+                updatedMessage.append("\n").append(avlResponseList.size() - 12)
+                        .append(" more available option(s), not added to this message.\nPlease check the Cowin Portal");
+                break;
+            }
         }
 
         updatedMessage.append("\n\n");

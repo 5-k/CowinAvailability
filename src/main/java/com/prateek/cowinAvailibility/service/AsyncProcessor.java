@@ -56,7 +56,7 @@ public class AsyncProcessor implements IAsyncProcessor {
 
     @Async
     @Override
-    public void process(Alerts alert) {
+    public void processAndNotify(Alerts alert) {
         CowinResponse response = getResponseForAlert(alert);
         log.debug("Got response from cowin");
 

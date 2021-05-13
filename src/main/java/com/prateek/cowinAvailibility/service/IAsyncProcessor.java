@@ -8,7 +8,7 @@ import com.prateek.cowinAvailibility.entity.Alerts;
 
 public interface IAsyncProcessor {
 
-    void process(Alerts alert);
+    void processAndNotify(Alerts alert);
 
     CowinResponse getResponseForAlert(Alerts alert);
 
