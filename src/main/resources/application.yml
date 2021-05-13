@@ -1,29 +1,43 @@
-server: 
-  port: 8082
+server:
+    port: 8083
+spring:
+    datasource:
+        driverClassName: com.mysql.jdbc.Driver
+        password: YOUR_PASSWORD
+        url: jdbc:mysql://YOUR_DB_HOST:3306/DB
+        username: USERNAME
+    h2:
+        console:
+            enabled: false
+    jpa:
+        hibernate:
+            ddl-auto: update
 app:
-    checkAVLCronJob: 0 0/20 * * * ?
+    logChatbotCron: 0 0/15 * * * ?
+    #logChatbotCron: 0 0/1 * * * ?
+    #checkAVLCronJob: 0 * * * * *
+    checkAVLCronJob: 0 0/9 * * * ?
     checkByDistrictURL: https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByDistrict?district_id={districtId}&date={dateVal}
     checkByPincodeURL: https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?pincode={pinCode}&date={dateVal}
     dateFormat: dd-MM-yyyy
-    debugTelegramChatId: 
+    debugTelegramChatId: DEBUG_CHAT_ID
     emailAuth: true
-    emailFrom: 
-    emailFromPassword: 
+    emailFrom: SEND_USER_EMAIL
+    emailFromPassword: PASSWORD
     emailHost: smtp.gmail.com
     emailSmtpPort: 587
     emailSocketFactory: 465
     emailSocketFactoryClass: javax.net.ssl.SSLSocketFactory
-    host: 
-    appHost: 
-    logChatbotCron: 0 0/15 * * * ?
+    host: HOST
+    appHost: HOST
     maxNotificationPerAlertPerDay: 12
     appPort: 80
-    telegramBotName: 
-    telegramBotToken: 
-    timeDifferenceBetweenPreviousNotificationInMins: 42
-    twiloAccoundSid: 
-    twiloAuthToken: 
-    twiloSendNumber: 
+    telegramBotName: BOT_NAME
+    telegramBotToken: TELEGRAM_BOT_TAKEN_GENERATED_BY_BOT_FATHER_IN_TELEGRAM_APP
+    timeDifferenceBetweenPreviousNotificationInMins: 60
+    twiloAccoundSid: TWILIO_SID_TOSEND_WHATSAPP_AND_MSG
+    twiloAuthToken: TWILIO_TOKEN_TOSEND_WHATSAPP_AND_MSG
+    twiloSendNumber: PHONE_NUMBER
 logging:
     level:
         com:
