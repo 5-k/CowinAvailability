@@ -56,7 +56,7 @@ Install the dependencies and devDependencies and start the server.
 ```sh
 cd cowinAvailibility
 mvn clean install
-mvn spring-boot:rim
+mvn spring-boot:run
 ```
 
 
