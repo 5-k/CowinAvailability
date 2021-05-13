@@ -34,7 +34,7 @@ public class TelegramController {
         log.info("Rest to sendMessageToAllActiveUsers");
 
         try {
-            return new ResponseEntity(service.broadcastMessage(jsonResponse.getMessage()),
+            return new ResponseEntity(new JsonResponse(service.broadcastMessage(jsonResponse.getMessage())),
                     org.springframework.http.HttpStatus.OK);
         } catch (Exception e) {
             log.error("Exception occurred : {} ", e.getMessage(), e);
@@ -49,7 +49,7 @@ public class TelegramController {
         log.info("Rest to sendMessageToSingleUser");
 
         try {
-            return new ResponseEntity(service.sendMessageToId(id, jsonResponse.getMessage()),
+            return new ResponseEntity(new JsonResponse(service.sendMessageToId(id, jsonResponse.getMessage())),
                     org.springframework.http.HttpStatus.OK);
         } catch (Exception e) {
             log.error("Exception occurred : {} ", e.getMessage(), e);
@@ -57,4 +57,22 @@ public class TelegramController {
                     HttpStatus.EXPECTATION_FAILED);
         }
     }
+
+    @SuppressWarnings("unchecked")
+    @RequestMapping(value = "/app/telegram/message/userMessage/{chatId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> sendMessageToSingleUserWithChatId(@PathVariable int chatId,
+            @RequestBody JsonResponse jsonResponse) {
+        log.info("Rest to sendMessageToSingleUser");
+
+        try {
+            return new ResponseEntity(
+                    new JsonResponse(service.sendMessageToChatId(String.valueOf(chatId)), jsonResponse.getMessage()),
+                    org.springframework.http.HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Exception occurred : {} ", e.getMessage(), e);
+            return new ResponseEntity<JsonResponse>(new JsonResponse("Exception adding alert"),
+                    HttpStatus.EXPECTATION_FAILED);
+        }
+    }
+
 }

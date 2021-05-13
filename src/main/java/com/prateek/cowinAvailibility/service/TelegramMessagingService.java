@@ -54,6 +54,11 @@ public class TelegramMessagingService {
         return "Success";
     }
 
+    public String sendMessageToChatId(String chatId, String message) {
+        service.sendResponse(chatId, message, true, false);
+        return "Success";
+    }
+
     @Async
     private void sendNotification(Alerts alt, String message) {
         String chatId = getChatIdByPhoneNumber(alt.getPhoneNumber());

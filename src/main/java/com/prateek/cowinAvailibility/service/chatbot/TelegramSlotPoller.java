@@ -117,7 +117,7 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
         try {
             log.debug("Response to publish ", message);
             String chatId = alert.getPhoneNumber().substring(alert.getPhoneNumber().indexOf(":") + 1);
-            // sendVaccineUpdatestoSelf(message);
+            sendVaccineUpdatestoSelf(message);
             sendResponse(chatId, message, true, false);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -129,7 +129,7 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
         String message = getAlertMessage(alert, avlResponseList);
         String chatId = alert.getPhoneNumber().substring(alert.getPhoneNumber().indexOf(":") + 1);
         sendVaccineUpdates(chatId, message);
-        // sendVaccineUpdatestoSelf(message);
+        sendVaccineUpdatestoSelf(message);
     }
 
     @Override

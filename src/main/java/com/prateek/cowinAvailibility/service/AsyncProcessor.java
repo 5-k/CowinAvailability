@@ -90,8 +90,13 @@ public class AsyncProcessor implements IAsyncProcessor {
                 if ((alert.getVaccineType().trim().equalsIgnoreCase("any")
                         || alert.getVaccineType().trim().equalsIgnoreCase(session.getVaccine()))
                         && alert.getAge() >= session.getMin_age_limit() && session.getAvailable_capacity() > 0) {
-                    validSessions.add(session);
 
+                    if (session.getAvailable_capacity() > 1) {
+                        validSessions.add(session);
+                    } else {
+                        telegramMessagingService.sendMessageToChatId(appConfiguration.getDebugTelegramChatId(),
+                                center.getName() + "-" + center.getAddress() + " has one vaccine");
+                    }
                 }
             }
 

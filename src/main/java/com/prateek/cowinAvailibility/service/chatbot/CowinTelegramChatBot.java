@@ -294,10 +294,23 @@ public class CowinTelegramChatBot {
                 case "/selectstate":
                     List<String> stateListV = Utils.getStateList(this.stateMap);
 
-                    if (stateListV.contains(messageText)) {
+                    for (String state : stateListV) {
+                        if (state.contains(messageText)) {
+                            log.info("Mapping state " + state + " to " + messageText);
+                            messageText = state;
+                            break;
+                        }
+                    }
+
+                    if (stateListV.contains(messageText) || stateListV.contains("/".concat(messageText))) {
                         Map<String, Map<String, Integer>> linkedHashMap = new HashMapCaseInsensitive<String, Map<String, Integer>>(
                                 this.cityMap);
-                        alert.setState(StringUtils.capitalize(messageText.substring(1)));
+                        if (messageText.startsWith("/")) {
+                            alert.setState(StringUtils.capitalize(messageText.substring(1)));
+                        } else {
+                            alert.setState(StringUtils.capitalize(messageText.substring(1)));
+                        }
+
                         Map<String, Integer> districtMap = linkedHashMap.get(messageText);
                         response = Utils.formatCityData(districtMap);
                         previousQuestion.put(chatId, "selectcity");
@@ -313,6 +326,11 @@ public class CowinTelegramChatBot {
                 case "invalidcity":
                     Map<String, Map<String, Integer>> linkedHashMap = new HashMapCaseInsensitive<String, Map<String, Integer>>(
                             this.cityMap);
+
+                    if (!messageText.startsWith("/")) {
+                        messageText = "/".concat(messageText);
+                    }
+
                     int districtId = Utils.getDistrictId(linkedHashMap, messageText);
                     if (districtId > 0) {
                         alert.setCity(StringUtils.capitalize(messageText.substring(1)));
