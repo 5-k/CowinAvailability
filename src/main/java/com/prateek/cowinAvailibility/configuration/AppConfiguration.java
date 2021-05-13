@@ -1,82 +1,58 @@
 package com.prateek.cowinAvailibility.configuration;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 @Configuration
-@PropertySource("classpath:application.properties")
+@PropertySource("classpath:application.yml")
 @ConfigurationProperties(prefix = "app")
 public class AppConfiguration {
 
-    @Value("${app.telegramBotName}")
     private String telegramBotName;
 
-    @Value("${app.telegramBotToken}")
     private String telegramBotToken;
 
-    @Value("${app.emailFrom}")
     private String emailFrom;
 
-    @Value("${app.emailHost}")
     private String emailHost;
 
-    @Value("${app.emailSocketFactory}")
     private String emailSocketFactory;
 
-    @Value("${app.emailSocketFactoryClass}")
     private String emailSocketFactoryClass;
 
-    @Value("${app.emailAuth}")
     private String emailAuth;
 
-    @Value("${app.emailSmtpPort}")
     private String emailSmtpPort;
 
-    @Value("${app.emailFromPassword}")
     private String emailFromPassword;
 
-    @Value("${app.checkByPincodeURL}")
     private String checkByPincodeURL;
 
-    @Value("${app.checkByDistrictURL}")
     private String checkByDistrictURL;
 
-    @Value("${app.dateFormat}")
     private String dateFormat;
 
-    @Value("${app.maxNotificationPerAlertPerDay}")
     private int maxNotificationPerAlertPerDay;
 
-    @Value("${app.timeDifferenceBetweenPreviousNotificationInMins}")
     private int timeDifferenceBetweenPreviousNotificationInMins;
 
-    @Value("${app.hostNameURL}")
     private String appHostNameURL;
 
-    @Value("${app.host}")
     private String appHost;
 
-    @Value("${app.port}")
     private int appPort;
 
-    @Value("${app.twiloACCOUNT_SID}")
     private String twiloAccoundSid;
 
-    @Value("${app.twiloAUTH_TOKEN}")
     private String twiloAuthToken;
 
-    @Value("${app.twilosendNumber}")
     private String twiloSendNumber;
 
-    @Value("${app.checkAVLCronJob}")
     private String checkAVLCronJob;
 
-    @Value("${app.logChatbotCron}")
     private String logChatbotCron;
 
-    @Value("${app.debugTelegramChatId}")
     private String debugTelegramChatId;
 
     public String getTwiloAccoundSid() {

@@ -11,7 +11,6 @@ import com.prateek.cowinAvailibility.configuration.AppConfiguration;
 import com.prateek.cowinAvailibility.dto.cowinResponse.AvlResponse;
 import com.prateek.cowinAvailibility.entity.Alerts;
 import com.prateek.cowinAvailibility.entity.Notifications;
-import com.prateek.cowinAvailibility.repo.AlertRepo;
 import com.prateek.cowinAvailibility.repo.NotificationsRepo;
 
 import org.slf4j.Logger;

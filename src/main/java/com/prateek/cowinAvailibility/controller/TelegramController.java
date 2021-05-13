@@ -65,8 +65,7 @@ public class TelegramController {
         log.info("Rest to sendMessageToSingleUser");
 
         try {
-            return new ResponseEntity(
-                    new JsonResponse(service.sendMessageToChatId(String.valueOf(chatId)), jsonResponse.getMessage()),
+            return new ResponseEntity(service.sendMessageToChatId(String.valueOf(chatId), jsonResponse.getMessage()),
                     org.springframework.http.HttpStatus.OK);
         } catch (Exception e) {
             log.error("Exception occurred : {} ", e.getMessage(), e);
