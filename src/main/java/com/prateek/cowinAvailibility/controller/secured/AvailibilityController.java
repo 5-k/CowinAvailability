@@ -1,4 +1,4 @@
-package com.prateek.cowinAvailibility.controller;
+package com.prateek.cowinAvailibility.controller.secured;
 
 import com.prateek.cowinAvailibility.service.CheckAvailivbilityService;
 import com.prateek.cowinAvailibility.service.IAsyncProcessor;
@@ -12,10 +12,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@org.springframework.web.bind.annotation.RestController
+@RestController
+@RequestMapping("/app/availability")
 public class AvailibilityController {
 
     @Autowired
@@ -28,7 +30,7 @@ public class AvailibilityController {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @SuppressWarnings("unchecked")
-    @RequestMapping(value = "/app/availability/district/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/district/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAvlByDistrictId(@PathVariable int id) {
         log.info("Rest to availability by district id for id " + id);
 
@@ -42,7 +44,7 @@ public class AvailibilityController {
     }
 
     @SuppressWarnings("unchecked")
-    @RequestMapping(value = "/app/availability/pincode/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/pincode/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAvlByPinCode(@PathVariable int id) {
         log.info("Rest to getAvlByPinCode by pincode id for id " + id);
 
@@ -56,37 +58,7 @@ public class AvailibilityController {
     }
 
     @SuppressWarnings("unchecked")
-    @RequestMapping(value = "/api/availability/Alert/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> fetchAlertData(@PathVariable int id) {
-        log.info("Refresh /app/availability/Alert/" + id);
-
-        try {
-            service.refreshAvl(id, false);
-            return new ResponseEntity(new JsonResponse("Success"), HttpStatus.OK);
-        } catch (Exception e) {
-            log.error("Exception occurred : {} ", e.getMessage(), e);
-            return new ResponseEntity<JsonResponse>(new JsonResponse("Exception updating alert"),
-                    HttpStatus.EXPECTATION_FAILED);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    @RequestMapping(value = "/api/availabilityDebug/Alert/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> fetchAlertDataDebug(@PathVariable int id) {
-        log.info("Refresh /app/availability/Alert/" + id);
-
-        try {
-            service.refreshAvl(id, true);
-            return new ResponseEntity(new JsonResponse("Success"), HttpStatus.OK);
-        } catch (Exception e) {
-            log.error("Exception occurred : {} ", e.getMessage(), e);
-            return new ResponseEntity<JsonResponse>(new JsonResponse("Exception updating alert"),
-                    HttpStatus.EXPECTATION_FAILED);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    @RequestMapping(value = "/app/forceCrone/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/forceCrone/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> forceRunCroneJob() {
         log.info("Force Run Cron Job");
         service.forceRunCron();

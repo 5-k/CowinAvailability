@@ -1,12 +1,6 @@
-package com.prateek.cowinAvailibility.controller;
+package com.prateek.cowinAvailibility.controller.secured;
 
-import java.util.List;
-import java.util.Optional;
-
-import com.prateek.cowinAvailibility.entity.Alerts;
-import com.prateek.cowinAvailibility.repo.AlertRepo;
 import com.prateek.cowinAvailibility.service.TelegramMessagingService;
-import com.prateek.cowinAvailibility.service.chatbot.TelegramSlotPoller;
 import com.prateek.cowinAvailibility.utility.JsonResponse;
 
 import org.slf4j.Logger;
@@ -19,8 +13,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
-@org.springframework.web.bind.annotation.RestController
+@RestController
+@RequestMapping("/app/telegram")
 public class TelegramController {
 
     @Autowired
@@ -29,7 +25,7 @@ public class TelegramController {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @SuppressWarnings("unchecked")
-    @RequestMapping(value = "/app/telegram/message/broadcast", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/message/broadcast", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> sendMessageToAllActiveUsers(@RequestBody JsonResponse jsonResponse) {
         log.info("Rest to sendMessageToAllActiveUsers");
 
@@ -44,7 +40,7 @@ public class TelegramController {
     }
 
     @SuppressWarnings("unchecked")
-    @RequestMapping(value = "/app/telegram/message/broadcast/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/message/broadcast/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> sendMessageToSingleUser(@PathVariable int id, @RequestBody JsonResponse jsonResponse) {
         log.info("Rest to sendMessageToSingleUser");
 
@@ -59,7 +55,7 @@ public class TelegramController {
     }
 
     @SuppressWarnings("unchecked")
-    @RequestMapping(value = "/app/telegram/message/userMessage/{chatId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/message/userMessage/{chatId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> sendMessageToSingleUserWithChatId(@PathVariable int chatId,
             @RequestBody JsonResponse jsonResponse) {
         log.info("Rest to sendMessageToSingleUser");
@@ -75,3 +71,7 @@ public class TelegramController {
     }
 
 }
+/*
+ * @ApiOperation(value = "Update registration detail", authorizations =
+ * { @Authorization(value="basicAuth") })
+ */

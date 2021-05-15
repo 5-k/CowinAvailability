@@ -1,4 +1,4 @@
-package com.prateek.cowinAvailibility.controller;
+package com.prateek.cowinAvailibility.controller.secured;
 
 import com.prateek.cowinAvailibility.dto.AlertDTO;
 import com.prateek.cowinAvailibility.service.Service;
@@ -14,8 +14,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
-@org.springframework.web.bind.annotation.RestController
+import io.swagger.annotations.*;
+
+@RestController
+@RequestMapping("/app/alert")
 public class AlertController {
 
     @Autowired
@@ -24,7 +28,8 @@ public class AlertController {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @SuppressWarnings("unchecked")
-    @RequestMapping(value = "/app/Alerts", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/Alerts", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Update registration detail", authorizations = { @Authorization(value = "basicAuth") })
     public ResponseEntity<?> getAlerts() {
         log.info("Rest to fetch all alerts");
 
@@ -38,7 +43,7 @@ public class AlertController {
     }
 
     @SuppressWarnings("unchecked")
-    @RequestMapping(value = "/app/Alerts/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/Alerts/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAlerts(@PathVariable int id) {
         log.info("Rest to fetch alerts by id " + id);
 
@@ -52,7 +57,7 @@ public class AlertController {
     }
 
     @SuppressWarnings("unchecked")
-    @RequestMapping(value = "/app/Alerts/phone", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/Alerts/phone", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAlertsByPhone(@RequestBody AlertDTO aDto) {
         log.info("Rest to fetch user alerts for ", aDto.toString());
 
@@ -66,7 +71,7 @@ public class AlertController {
     }
 
     @SuppressWarnings("unchecked")
-    @RequestMapping(value = "/app/Alert", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/Alert", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> addAlert(@RequestBody AlertDTO aDto) {
 
         try {
@@ -81,7 +86,7 @@ public class AlertController {
 
     // Remove Alert
     @SuppressWarnings("unchecked")
-    @RequestMapping(value = "/app/Alerts/delete/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/Alerts/delete/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> disableAlertById(@PathVariable int id) {
         removeAlertById(id);
         return new ResponseEntity(
@@ -89,7 +94,7 @@ public class AlertController {
     }
 
     @SuppressWarnings("unchecked")
-    @RequestMapping(value = "/app/Alerts/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/Alerts/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> removeAlertById(@PathVariable int id) {
         log.info("Rest to disable alerts by id " + id);
 
@@ -103,7 +108,7 @@ public class AlertController {
     }
 
     @SuppressWarnings("unchecked")
-    @RequestMapping(value = "/app/Alerts/phone", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/Alerts/phone", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> removeAlertsByPhone(@RequestBody AlertDTO aDto) {
         log.info("Rest to disable user alerts by phone for ", aDto.toString());
 
@@ -117,7 +122,7 @@ public class AlertController {
     }
 
     @SuppressWarnings("unchecked")
-    @RequestMapping(value = "/app/Alerts/sendWelcomeEmail/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/Alerts/sendWelcomeEmail/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> sendWelcomeEmail(@PathVariable int id) {
         service.sendWelcomeEmail(id);
         return new ResponseEntity("Email Sent!", HttpStatus.OK);

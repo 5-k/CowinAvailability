@@ -3,6 +3,7 @@ package com.prateek.cowinAvailibility.service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import com.prateek.cowinAvailibility.dto.AlertDTO;
@@ -86,7 +87,11 @@ public class Service {
     }
 
     public void sendWelcomeEmail(int id) {
-        Alerts alert = alertRepo.findById(id).get();
+        Optional<Alerts> alerts = alertRepo.findById(id);
+        if (null == alerts) {
+            throw new NoSuchElementException("No Such Alert with found with the input Id");
+        }
+        Alerts alert = alerts.get();
         emailServce.sendWelcomeMessage(alert);
     }
 
@@ -96,7 +101,11 @@ public class Service {
     }
 
     public AlertDTO getAlertsById(int id) {
-        Alerts alert = alertRepo.findById(id).get();
+        Optional<Alerts> alerts = alertRepo.findById(id);
+        if (null == alerts) {
+            throw new NoSuchElementException("No Such Alert with found with the input Id");
+        }
+        Alerts alert = alerts.get();
         return convertToDto(alert);
     }
 
