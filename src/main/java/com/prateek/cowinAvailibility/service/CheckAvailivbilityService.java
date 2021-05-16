@@ -83,6 +83,12 @@ public class CheckAvailivbilityService {
         if (alertVal.isPresent()) {
             Alerts alert = alertVal.get();
             CowinResponse response = asyncProcessor.getResponseForAlert(alert);
+
+            if (null == response) {
+                notificationService.sendTelegramUpdate(alert, "No vaccine available as per the alert: " + id, debug);
+                return;
+            }
+
             Set<AvlResponse> avlResponseList = asyncProcessor.processResponse(alert, response);
             if (avlResponseList.isEmpty()) {
                 notificationService.sendTelegramUpdate(alert,

@@ -70,12 +70,9 @@ public class AsyncProcessor implements IAsyncProcessor {
             if (avlResponseList.size() > 0) {
                 generateNotificationService.notifyUsers(alert, avlResponseList);
             } else {
-                service.sendVaccineUpdates(alert, "No vaccine available as per the alert");
                 log.info("Nothing to notify ");
             }
         } else {
-            service.sendVaccineUpdates(alert,
-                    "Cowin portal response unavailable at the moment. Please try again in sometime.");
             log.error("Response is null");
         }
 
