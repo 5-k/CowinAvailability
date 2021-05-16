@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.annotation.PreDestroy;
+
 import com.prateek.cowinAvailibility.entity.TelegramChatHistory;
 import com.prateek.cowinAvailibility.repo.TelegramChatHistoryRepo;
 import com.prateek.cowinAvailibility.utility.Utils;
@@ -53,5 +55,10 @@ public class ChatBotLogger implements IChatBotLogger {
             log.error(e.getLocalizedMessage(), e);
         }
 
+    }
+
+    @PreDestroy
+    public void predestroy() {
+        saveLogAsync();
     }
 }

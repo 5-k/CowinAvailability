@@ -1,31 +1,28 @@
 package com.prateek.cowinAvailibility.service.chatbot;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
-import org.springframework.http.HttpHeaders;
 import com.prateek.cowinAvailibility.configuration.AppConfiguration;
+import com.prateek.cowinAvailibility.dto.cowinResponse.AvlResponse;
+import com.prateek.cowinAvailibility.dto.cowinResponse.CowinResponse;
 import com.prateek.cowinAvailibility.entity.Alerts;
 import com.prateek.cowinAvailibility.entity.Feedback;
 import com.prateek.cowinAvailibility.repo.AlertRepo;
 import com.prateek.cowinAvailibility.repo.FeedbackRepo;
 import com.prateek.cowinAvailibility.service.DataService;
+import com.prateek.cowinAvailibility.service.ExternalService;
 import com.prateek.cowinAvailibility.utility.HashMapCaseInsensitive;
-import com.prateek.cowinAvailibility.utility.JsonResponse;
 import com.prateek.cowinAvailibility.utility.Utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +50,9 @@ public class CowinTelegramChatBot {
     private FeedbackRepo feedbackRepo;
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    private ExternalService externalService;
 
     @PostConstruct
     public void loadResource() {
@@ -104,33 +104,25 @@ public class CowinTelegramChatBot {
                 return responseList;
             }
             Alerts alertVal = alt.get();
-
-            if (alertVal.getPhoneNumber().contains(stringChatId)
-                    || stringChatId.equals(appConfiguration.getDebugTelegramChatId())) {
-                String url;
-                if (stringChatId.equals(appConfiguration.getDebugTelegramChatId())) {
-                    url = appConfiguration.getHost() + "/api/availabilityDebug/Alert/" + id;
-                } else {
-                    url = appConfiguration.getHost() + "/api/availability/Alert/" + id;
-                }
-                log.info("Url call initated : " + url);
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_JSON);
-                headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-                headers.add("user-agent",
-                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36");
-                org.springframework.http.HttpEntity<String> entity = new org.springframework.http.HttpEntity<String>(
-                        "parameters", headers);
-                RestTemplate restTemplate = new RestTemplate();
-                ResponseEntity<JsonResponse> res = restTemplate.exchange(url, HttpMethod.GET, entity,
-                        JsonResponse.class);
-                log.info("Response, " + res.getStatusCode() + "- " + res.getBody());
-                return responseList;
+            CowinResponse res;
+            if (alertVal.isPinCodeSearch()) {
+                res = externalService.getData(alertVal.getPincode(), true);
             } else {
-                responseList.add(actionResponseJson.get("fetchonlyyouralerts"));
+                res = externalService.getData(alertVal.getDistrictId(), false);
+            }
+
+            if (null == res) {
+                responseList.add("No vaccine available as per the alert: " + alert.getId());
                 return responseList;
             }
 
+            Set<AvlResponse> avlResponseList = Utils.processResponse(alertVal, res);
+            if (avlResponseList.isEmpty()) {
+                responseList.add("Currently no vaccine is available as per the for Alert: " + alertVal.getId());
+            } else {
+                responseList.add(Utils.getTelegramAlertMessage(alertVal, avlResponseList));
+            }
+            return responseList;
         }
 
         switch (messageText) {

@@ -126,7 +126,7 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
 
     @Async
     public void sendVaccineUpdates(Alerts alert, Set<AvlResponse> avlResponseList) {
-        String message = getAlertMessage(alert, avlResponseList);
+        String message = Utils.getTelegramAlertMessage(alert, avlResponseList);
         String chatId = alert.getPhoneNumber().substring(alert.getPhoneNumber().indexOf(":") + 1);
         sendVaccineUpdates(chatId, message);
         sendVaccineUpdatestoSelf(message);
@@ -134,7 +134,7 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
 
     @Override
     public void sendVaccineUpdatestoSelf(Alerts alert, Set<AvlResponse> avlResponseList) {
-        String message = getAlertMessage(alert, avlResponseList);
+        String message = Utils.getTelegramAlertMessage(alert, avlResponseList);
         String chatId = appConfiguration.getDebugTelegramChatId();
         log.debug("Sending message " + message + "\n to chat id " + chatId);
         sendVaccineUpdates(chatId, message);
@@ -156,90 +156,6 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-    }
-
-    public String getAlertMessage(Alerts alert, Set<AvlResponse> avlResponseList) {
-        StringBuilder updatedMessage = new StringBuilder();
-        updatedMessage.append("Hi ");
-        if (null != alert.getName()) {
-            updatedMessage.append(StringUtils.capitalize(alert.getName()));
-        }
-        updatedMessage.append(", following slots are available as per your alert: ");
-        updatedMessage.append(alert.getAge());
-        updatedMessage.append("+");
-
-        if (alert.isPinCodeSearch()) {
-            updatedMessage.append(" for pincode: ");
-            updatedMessage.append(alert.getPincode());
-        } else {
-            if (null != alert.getCity() && null != alert.getState()) {
-                updatedMessage.append(" for ");
-                updatedMessage.append(StringUtils.capitalize(alert.getCity()));
-                updatedMessage.append(", ");
-                updatedMessage.append(StringUtils.capitalize(alert.getState()));
-            }
-        }
-        updatedMessage.append("\n");
-
-        if (avlResponseList.size() > 10) {
-            updatedMessage.append("\n");
-            updatedMessage.append("More than 10 centers are avaialble for this alert. The message may come in parts");
-            updatedMessage.append("\n\n");
-        }
-
-        Iterator<AvlResponse> itr = avlResponseList.iterator();
-        int i = 0;
-        while (itr.hasNext()) {
-            i++;
-            AvlResponse res = itr.next();
-            Set<CowinResponseSessions> set = res.getSessions();
-            updatedMessage.append("\n\n");
-            updatedMessage.append("🚑").append(res.getCenterName()).append(" - ").append(res.getCenterAddress())
-                    .append("-").append(res.getPincode()).append("\n");
-
-            if (null != set && set.size() > 0) {
-                Iterator<CowinResponseSessions> itr2 = set.iterator();
-                int j = 0;
-
-                while (itr2.hasNext()) {
-                    j++;
-                    if (j == 1) {
-                        CowinResponseSessions session = itr2.next();
-                        updatedMessage.append("-------------------\n");
-                        updatedMessage.append("Type: ").append(session.getVaccine()).append("\n");
-                        updatedMessage.append("Date: ").append(session.getDate()).append("\n");
-                        updatedMessage.append("Age: ").append(session.getMin_age_limit()).append("\n");
-                        updatedMessage.append("Fee: ").append(res.getFees()).append("\n");
-                        updatedMessage.append("Available Count: ").append(session.getAvailable_capacity())
-                                .append(session.getAvailable_capacity() <= 10 ? " Hurry! " : "").append("\n");
-                        updatedMessage.append("-------------------");
-                    } else {
-                        CowinResponseSessions session = itr2.next();
-                        updatedMessage.append("\n-------------------\n");
-                        updatedMessage.append(session.getAvailable_capacity()).append(" more available on  ")
-                                .append(session.getDate()).append("\n");
-                        updatedMessage.append("-------------------");
-                    }
-
-                }
-                updatedMessage.append("\n");
-            }
-
-            if (i > 12) {
-                updatedMessage.append("\n").append(avlResponseList.size() - 12)
-                        .append(" more available option(s), not added to this message.\nPlease check the Cowin Portal");
-                break;
-            }
-        }
-
-        updatedMessage.append("\n\n");
-        updatedMessage.append(
-                "Click here to stop recieving updates for this alert:  /stopUpdatesForAlert" + alert.getId() + " \n");
-        updatedMessage.append("Click here to stop recieving updates for all alerts:  /stopUpdates \n");
-        updatedMessage.append("Click fetch Latest Update on this:  /fetchLatestUpdateFor" + alert.getId());
-        updatedMessage.append("\n\nClick view updates to see all updates set by you:  /viewAlerts" + alert.getId());
-
-        return updatedMessage.toString();
     }
 
 }

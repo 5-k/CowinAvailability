@@ -2,10 +2,21 @@ package com.prateek.cowinAvailibility.utility;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+
+import com.prateek.cowinAvailibility.dto.cowinResponse.AvlResponse;
+import com.prateek.cowinAvailibility.dto.cowinResponse.CowinResponse;
+import com.prateek.cowinAvailibility.dto.cowinResponse.CowinResponseCenter;
+import com.prateek.cowinAvailibility.dto.cowinResponse.CowinResponseSessions;
+import com.prateek.cowinAvailibility.dto.cowinResponse.CowinVaccineFees;
+import com.prateek.cowinAvailibility.entity.Alerts;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
 
 public class Utils {
 
@@ -124,6 +135,145 @@ public class Utils {
         }
         return parts;
         // return parts.toArray(new String[0]);
+    }
+
+    public static Set<AvlResponse> processResponse(Alerts alert, CowinResponse response) {
+        Set<AvlResponse> avlResponseList = new LinkedHashSet<AvlResponse>();
+
+        for (int i = 0; i < response.getCenters().size(); i++) {
+            CowinResponseCenter center = response.getCenters().get(i);
+            Set<CowinResponseSessions> validSessions = new LinkedHashSet<CowinResponseSessions>();
+            String vaccineType = "";
+
+            for (int j = 0; j < center.getSessions().size(); j++) {
+
+                CowinResponseSessions session = center.getSessions().get(j);
+                vaccineType = session.getVaccine();
+                if ((alert.getVaccineType().trim().equalsIgnoreCase("any")
+                        || alert.getVaccineType().trim().equalsIgnoreCase(session.getVaccine()))
+                        && alert.getAge() >= session.getMin_age_limit() && session.getAvailable_capacity() > 0) {
+
+                    if (session.getAvailable_capacity() > 1) {
+                        validSessions.add(session);
+                    } else {
+                        System.out.println(
+                                center.toString() + " WITH SESSION " + session.toString() + " has one vaccine");
+                    }
+                }
+            }
+
+            if (validSessions.size() > 0) {
+                AvlResponse avlResponse = new AvlResponse(center.getCenter_id(), center.getName(), center.getAddress(),
+                        center.getPincode(), validSessions);
+
+                if (center.getFee_type().equalsIgnoreCase("paid")
+                        && !CollectionUtils.isEmpty(center.getVaccineFees())) {
+                    for (int k = 0; k < center.getVaccineFees().size(); k++) {
+                        CowinVaccineFees fees = center.getVaccineFees().get(i);
+                        if (null != fees && fees.getVaccine().trim().equalsIgnoreCase(vaccineType)) {
+                            avlResponse.setFees(fees.getFees());
+                            break;
+                        } else {
+                            avlResponse.setFees(center.getFee_type());
+                        }
+                    }
+                } else {
+                    avlResponse.setFees(center.getFee_type());
+                }
+
+                avlResponseList.add(avlResponse);
+            }
+        }
+
+        if (avlResponseList.size() == 0) {
+            System.out.println("No avlResponseList Session found for Alert " + alert);
+        }
+
+        return avlResponseList;
+    }
+
+    public static String getTelegramAlertMessage(Alerts alert, Set<AvlResponse> avlResponseList) {
+        StringBuilder updatedMessage = new StringBuilder();
+        updatedMessage.append("Hi ");
+        if (null != alert.getName()) {
+            updatedMessage.append(StringUtils.capitalize(alert.getName()));
+        }
+        updatedMessage.append(", following slots are available as per your alert: ");
+        updatedMessage.append(alert.getAge());
+        updatedMessage.append("+");
+
+        if (alert.isPinCodeSearch()) {
+            updatedMessage.append(" for pincode: ");
+            updatedMessage.append(alert.getPincode());
+        } else {
+            if (null != alert.getCity() && null != alert.getState()) {
+                updatedMessage.append(" for ");
+                updatedMessage.append(StringUtils.capitalize(alert.getCity()));
+                updatedMessage.append(", ");
+                updatedMessage.append(org.apache.commons.lang3.StringUtils.capitalize(alert.getState()));
+            }
+        }
+        updatedMessage.append("\n");
+
+        if (avlResponseList.size() > 12) {
+            updatedMessage.append("\n");
+            updatedMessage.append("More than 12 centers are avaialble for this alert.");
+            updatedMessage.append("\n\n");
+        }
+
+        Iterator<AvlResponse> itr = avlResponseList.iterator();
+        int i = 0;
+        while (itr.hasNext()) {
+            i++;
+            AvlResponse res = itr.next();
+            Set<CowinResponseSessions> set = res.getSessions();
+            updatedMessage.append("\n\n");
+            updatedMessage.append("🚑").append(res.getCenterName()).append(" - ").append(res.getCenterAddress())
+                    .append("-").append(res.getPincode()).append("\n");
+
+            if (null != set && set.size() > 0) {
+                Iterator<CowinResponseSessions> itr2 = set.iterator();
+                int j = 0;
+
+                while (itr2.hasNext()) {
+                    j++;
+                    if (j == 1) {
+                        CowinResponseSessions session = itr2.next();
+                        updatedMessage.append("-------------------\n");
+                        updatedMessage.append("Type: ").append(session.getVaccine()).append("\n");
+                        updatedMessage.append("Date: ").append(session.getDate()).append("\n");
+                        updatedMessage.append("Age: ").append(session.getMin_age_limit()).append("\n");
+                        updatedMessage.append("Fee: ").append(res.getFees()).append("\n");
+                        updatedMessage.append("Available Count: ").append(session.getAvailable_capacity())
+                                .append(session.getAvailable_capacity() <= 10 ? " Hurry! " : "").append("\n");
+                        updatedMessage.append("-------------------");
+                    } else {
+                        CowinResponseSessions session = itr2.next();
+                        updatedMessage.append("\n-------------------\n");
+                        updatedMessage.append(session.getAvailable_capacity()).append(" more available on  ")
+                                .append(session.getDate()).append("\n");
+                        updatedMessage.append("-------------------");
+                    }
+
+                }
+                updatedMessage.append("\n");
+            }
+
+            if (i > 12) {
+                updatedMessage.append("\n").append(avlResponseList.size() - 12)
+                        .append(" more available option(s), not added to this message.\nPlease check the Cowin Portal");
+                break;
+            }
+        }
+
+        updatedMessage.append("\n\n");
+        updatedMessage.append(
+                "Click here to stop recieving updates for this alert:  /stopUpdatesForAlert" + alert.getId() + " \n");
+        updatedMessage.append("Click here to stop recieving updates for all alerts:  /stopUpdates \n");
+        updatedMessage.append("Click fetch Latest Update on this:  /fetchLatestUpdateFor" + alert.getId());
+        updatedMessage.append("\n\nClick view updates to see all updates set by you:  /viewAlerts");
+
+        return updatedMessage.toString();
     }
 
 }
