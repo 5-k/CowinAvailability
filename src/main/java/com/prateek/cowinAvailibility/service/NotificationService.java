@@ -51,9 +51,11 @@ public class NotificationService {
     }
 
     public String sendTelegramMessage(Alerts alert, Set<AvlResponse> avlResponseList, boolean debug) {
-        if (debug) {
+        if (appConfiguration.isDebugMode() && debug) {
             telegramService.sendVaccineUpdatestoSelf(alert, avlResponseList);
-        } else {
+        }
+
+        if (!debug) {
             telegramService.sendVaccineUpdates(alert, avlResponseList);
         }
 
@@ -61,9 +63,11 @@ public class NotificationService {
     }
 
     public String sendTelegramUpdate(Alerts alert, String data, boolean debug) {
-        if (debug) {
+        if (appConfiguration.isDebugMode() && debug) {
             telegramService.sendVaccineUpdatestoSelf(data);
-        } else {
+        }
+
+        if (!debug) {
             telegramService.sendVaccineUpdates(alert, data);
         }
         return "0";

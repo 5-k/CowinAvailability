@@ -55,6 +55,44 @@ public class AppConfiguration {
 
     private String debugTelegramChatId;
 
+    private boolean debugMode;
+
+    private String debugEmailId;
+
+    private int cowinAPIMaxRetry;
+
+    public int getCowinAPIMaxRetry() {
+        return cowinAPIMaxRetry;
+    }
+
+    public void setCowinAPIMaxRetry(int cowinAPIMaxRetry) {
+        this.cowinAPIMaxRetry = cowinAPIMaxRetry;
+    }
+
+    public String getDebugEmailId() {
+        return debugEmailId;
+    }
+
+    public void setDebugEmailId(String debugEmailId) {
+        this.debugEmailId = debugEmailId;
+    }
+
+    public String getAppHost() {
+        return appHost;
+    }
+
+    public void setAppHost(String appHost) {
+        this.appHost = appHost;
+    }
+
+    public boolean isDebugMode() {
+        return debugMode;
+    }
+
+    public void setDebugMode(boolean debugMode) {
+        this.debugMode = debugMode;
+    }
+
     public String getTwiloAccoundSid() {
         return twiloAccoundSid;
     }

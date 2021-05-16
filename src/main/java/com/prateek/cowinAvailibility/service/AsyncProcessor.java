@@ -15,11 +15,13 @@ import com.prateek.cowinAvailibility.dto.cowinResponse.CowinResponseCenter;
 import com.prateek.cowinAvailibility.dto.cowinResponse.CowinResponseSessions;
 import com.prateek.cowinAvailibility.dto.cowinResponse.CowinVaccineFees;
 import com.prateek.cowinAvailibility.entity.Alerts;
+import com.prateek.cowinAvailibility.service.chatbot.ITelegramSlotPoller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
@@ -45,7 +47,8 @@ public class AsyncProcessor implements IAsyncProcessor {
     private IGenerateNotificationService generateNotificationService;
 
     @Autowired
-    private TelegramMessagingService telegramMessagingService;
+    @Qualifier("telegramSlotPoller")
+    private ITelegramSlotPoller service;
 
     @PostConstruct
     public void PostConstruct() {
@@ -67,9 +70,12 @@ public class AsyncProcessor implements IAsyncProcessor {
             if (avlResponseList.size() > 0) {
                 generateNotificationService.notifyUsers(alert, avlResponseList);
             } else {
+                service.sendVaccineUpdates(alert, "No vaccine available as per the alert");
                 log.info("Nothing to notify ");
             }
         } else {
+            service.sendVaccineUpdates(alert,
+                    "Cowin portal response unavailable at the moment. Please try again in sometime.");
             log.error("Response is null");
         }
 
@@ -94,8 +100,7 @@ public class AsyncProcessor implements IAsyncProcessor {
                     if (session.getAvailable_capacity() > 1) {
                         validSessions.add(session);
                     } else {
-                        telegramMessagingService.sendMessageToChatId(appConfiguration.getDebugTelegramChatId(),
-                                center.getName() + "-" + center.getAddress() + " has one vaccine");
+                        log.warn(center.toString() + " WITH SESSION " + session.toString() + " has one vaccine");
                     }
                 }
             }
@@ -165,6 +170,23 @@ public class AsyncProcessor implements IAsyncProcessor {
     }
 
     private CowinResponse getData(int districtOrPincode, boolean isPinCode) {
+        int i = 0;
+        while (i < appConfiguration.getCowinAPIMaxRetry()) {
+            try {
+                ResponseEntity<CowinResponse> response = getDataFromCowin(districtOrPincode, isPinCode);
+                if (null != response && response.getStatusCode() == HttpStatus.OK) {
+                    return response.getBody();
+                }
+            } catch (Exception e) {
+                log.error("Exception occurred calling cowin api: " + e.getMessage(), e);
+            }
+            log.error("Attempt " + (i + 1) + " of " + appConfiguration.getCowinAPIMaxRetry()
+                    + " Retrying again if max attempt not reached");
+        }
+        return null;
+    }
+
+    private ResponseEntity<CowinResponse> getDataFromCowin(int districtOrPincode, boolean isPinCode) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -187,7 +209,7 @@ public class AsyncProcessor implements IAsyncProcessor {
         ResponseEntity<CowinResponse> response = restTemplate.exchange(url, HttpMethod.GET, entity,
                 CowinResponse.class);
 
-        return response.getBody();
+        return response;
     }
 
 }

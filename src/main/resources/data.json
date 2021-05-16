@@ -9,7 +9,7 @@
     
     "update": "Checking for updated Information",
     
-    "addOrDelete": "Would you like to **/addAlert** \n\n View existing alerts **/viewAlerts** \n\nContact Me **/contact** \n\nLeave a feedback /feedback ",
+    "addOrDelete": "Would you like to **/addAlert** \n\n View existing alerts **/viewAlerts** \n\nContact Me **/contact** \n\nLeave a feedback **/feedback** ",
     
     "addalert": "May I kindly have your name please?",
     "add alert": "May I kindly have your name please?",
@@ -35,7 +35,7 @@
     
     "age" : "And what is your age range \n\n**/18To44** or \n\n**/45+** ?",
      
-    "success" : "We will notify you when slots are available in your area 👍\n\nTo add more such alerts select **/start**\n\nView Your Alerts **/viewAlerts** \n\nPlease refer your friends to use this application",
+    "success" : "We will notify you when slots are available in your area. You will be notified once per hour, in case the vaccine slots becomes available. 👍\n\nTo add more such alerts select **/start**\n\nView Your Alerts **/viewAlerts** \n\nPlease refer your friends to use this application",
     "disableAlert" : "Alert is successfully deleted 👍",
 
     "deletealert": "What is the person name for which the alert has to be deleted?",
@@ -53,7 +53,7 @@
     "successfeedback": "Feedback has been submitted😀, Thank you  \n\n Please refer your friends to use this application",
     "welcome": "<div id=\":1cv\" class=\"Am Al editable LW-avf tS-tW tS-tY\" hidefocus=\"true\" aria-label=\"Message Body\" g_editable=\"true\" role=\"textbox\" aria-multiline=\"true\" contenteditable=\"true\" tabindex=\"1\" style=\"direction: ltr; min-height: 116px;\" itacorner=\"6,7:1,1,0,0\" spellcheck=\"false\">Hi there,<div><br></div><div>You are receiving&nbsp;this email because you have registered via google forms to get an alert for vaccine <span zeum4c1=\"1620735546338\" data-ddnwab=\"1620735546338\" class=\"ng\" data-wpkgv=\"true\">availability</span>.<img src=\"//ssl.gstatic.com/mail/emoji/v7/png48/emoji_u1f44d.png\" alt=\"\" goomoji=\"1f44d\" data-goomoji=\"1f44d\" style=\"margin: 0px 0.2ex; vertical-align: middle; height: 24px; width: 24px;\"></div><div><br></div><div>We will update you as soon as the slots are available. To get a direct message on telegram please follow here:&nbsp;https://t.me/Cowin_Availability_Slot_bot&nbsp;&nbsp;<img src=\"//ssl.gstatic.com/mail/emoji/v7/png48/emoji_u1f603.png\" alt=\"\" goomoji=\"1f603\" data-goomoji=\"1f603\" style=\"margin: 0px 0.2ex; vertical-align: middle; height: 24px; width: 24px;\"></div><div><br></div><div>To Stop further alerts, please ${clickHere}</div><div><br></div><div>Regards,</div><div><br></div><div><br></div><div><br></div></div>",
     
-    "invalid_response" : "Oops! Looks like an unknown response🥺. Please try again by answering the previous question😄\n\nTo start Again select **/start**  \nTo leave the chat select **/bye**  \nTo Submit a feedback select **/feedback**",
+    "invalid_response" : "Oops! Looks like an unknown response🥺. Please try again by answering the previous question😄\n\nTo start Again select **/start**  \nTo leave the chat select **/bye**  \nTo Submit a feedback select **/feedback**\nView Your Alerts **/viewAlerts**",
 
     "deleteyouralertsonly": "You can only delete alerts created by you. ",
     "fetchonlyyouralerts": "You can only fetch updates on alerts created by you. ",

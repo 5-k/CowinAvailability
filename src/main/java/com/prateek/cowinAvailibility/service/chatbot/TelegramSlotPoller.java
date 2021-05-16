@@ -237,6 +237,7 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
                 "Click here to stop recieving updates for this alert:  /stopUpdatesForAlert" + alert.getId() + " \n");
         updatedMessage.append("Click here to stop recieving updates for all alerts:  /stopUpdates \n");
         updatedMessage.append("Click fetch Latest Update on this:  /fetchLatestUpdateFor" + alert.getId());
+        updatedMessage.append("\n\nClick view updates to see all updates set by you:  /viewAlerts" + alert.getId());
 
         return updatedMessage.toString();
     }
