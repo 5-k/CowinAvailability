@@ -80,8 +80,9 @@ public class EmailServce {
 
             message.setFrom(new InternetAddress(from));
             message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-            if(appConfiguration.isDebugMode()) { 
-                message.addRecipient(Message.RecipientType.BCC, new InternetAddress(appConfiguration.getDebugEmailId());
+            if (appConfiguration.isDebugMode()) {
+                message.addRecipient(Message.RecipientType.BCC,
+                        new InternetAddress(appConfiguration.getDebugEmailId()));
             }
 
             message.setSubject(subject);
