@@ -57,6 +57,8 @@ Install the dependencies and devDependencies and start the server.
 cd cowinAvailibility
 mvn clean install
 mvn spring-boot:run
+keytool -genkey -alias cowin-avlb -storetype JKS -keyalg RSA -keysize 2048 -validity 365 -keystore cowin-avlb.jks
+keytool -importkeystore -srckeystore cowin-avlb.jks -destkeystore cowin-avlb.jks -deststoretype pkcs12
 ```
 
 

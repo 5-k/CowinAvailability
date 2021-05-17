@@ -96,6 +96,8 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
             try {
                 execute(message); // Sending our message object to user
             } catch (TelegramApiException e) {
+                log.error("Exception for sending message to chat id " + chatId + " with exception " + e.getMessage(),
+                        e);
                 e.printStackTrace();
             }
         }
