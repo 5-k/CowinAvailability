@@ -14,6 +14,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.slf4j.Logger;
@@ -39,25 +40,38 @@ public class ExternalService {
     }
 
     public CowinResponse getData(int districtOrPincode, boolean isPinCode) {
-        int i = 0;
-        while (i < appConfiguration.getCowinAPIMaxRetry()) {
-            try {
-                ResponseEntity<CowinResponse> response = getDataFromCowin(districtOrPincode, isPinCode);
-                if (null != response && response.getStatusCode() == HttpStatus.OK) {
-                    return response.getBody();
-                }
-            } catch (Exception e) {
-                log.error("Exception occurred calling cowin api: " + e.getMessage(), e);
-            }
-            i++;
-            log.error("Attempt " + i + " of " + appConfiguration.getCowinAPIMaxRetry()
-                    + " Retrying again if max attempt not reached");
+
+        ResponseEntity<CowinResponse> response = getDataWithRetry(districtOrPincode, isPinCode, 0);
+
+        if (null != response && response.getStatusCode() == HttpStatus.OK) {
+            log.info("Got Result from API   response code " + response.getStatusCode());
+            return response.getBody();
+        } else {
+            log.info("Got null from API response code " + response.getStatusCode());
         }
-        return null;
+
+        return response.getBody();
     }
 
-    private ResponseEntity<CowinResponse> getDataFromCowin(int districtOrPincode, boolean isPinCode) {
-        RestTemplate restTemplate = new RestTemplate();
+    private ResponseEntity<CowinResponse> getDataWithRetry(int districtOrPincode, boolean isPinCode, int count) {
+        try {
+            ResponseEntity<CowinResponse> response = getParsedData(districtOrPincode, isPinCode);
+            if ((null == response || response.getStatusCode() != HttpStatus.OK)
+                    && count < appConfiguration.getCowinAPIMaxRetry()) {
+                count++;
+                return getDataWithRetry(districtOrPincode, isPinCode, count);
+            } else {
+                return response;
+            }
+        } catch (Exception e) {
+            log.error("Exception occurred calling cowin api: " + e.getMessage() + " count = " + count, e);
+            count++;
+            return getDataWithRetry(districtOrPincode, isPinCode, count);
+        }
+    }
+
+    private ResponseEntity<CowinResponse> getParsedData(int districtOrPincode, boolean isPinCode) {
+        RestTemplate restTemplate = new RestTemplate(getClientHttpRequestFactory());
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("accept",
@@ -85,4 +99,12 @@ public class ExternalService {
 
         return response;
     }
+
+    private SimpleClientHttpRequestFactory getClientHttpRequestFactory() {
+        SimpleClientHttpRequestFactory clientHttpRequestFactory = new SimpleClientHttpRequestFactory();
+        clientHttpRequestFactory.setConnectTimeout(2000);
+        clientHttpRequestFactory.setReadTimeout(2000);
+        return clientHttpRequestFactory;
+    }
+
 }

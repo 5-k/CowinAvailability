@@ -1,11 +1,14 @@
 package com.prateek.cowinAvailibility.utility;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.TreeMap;
 
 import com.prateek.cowinAvailibility.dto.cowinResponse.AvlResponse;
@@ -16,6 +19,7 @@ import com.prateek.cowinAvailibility.dto.cowinResponse.CowinVaccineFees;
 import com.prateek.cowinAvailibility.entity.Alerts;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
 import org.springframework.util.CollectionUtils;
 
 public class Utils {
@@ -137,7 +141,19 @@ public class Utils {
         // return parts.toArray(new String[0]);
     }
 
-    public static Set<AvlResponse> processResponse(Alerts alert, CowinResponse response) {
+    public static Date getCurrentDate() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date());
+        return cal.getTime();
+    }
+
+    public static Calendar getCalender() {
+        Calendar cal = Calendar.getInstance();
+
+        return cal;
+    }
+
+    public static Set<AvlResponse> processResponse(Alerts alert, CowinResponse response, Logger log) {
         Set<AvlResponse> avlResponseList = new LinkedHashSet<AvlResponse>();
 
         for (int i = 0; i < response.getCenters().size(); i++) {
@@ -149,16 +165,41 @@ public class Utils {
 
                 CowinResponseSessions session = center.getSessions().get(j);
                 vaccineType = session.getVaccine();
-                if ((alert.getVaccineType().trim().equalsIgnoreCase("any")
-                        || alert.getVaccineType().trim().equalsIgnoreCase(session.getVaccine()))
-                        && alert.getAge() >= session.getMin_age_limit() && session.getAvailable_capacity() > 0) {
+                if ((alert.getVaccineType().trim().equalsIgnoreCase(Constants.VACCINE_TYPE_ANY)
+                        || alert.getVaccineType().trim().equalsIgnoreCase(session.getVaccine().trim()))
+                        && (alert.getAge() == session.getMin_age_limit())
+                        && (session.getAvailable_capacity() > 0 || session.getAvailable_capacity_dose1() > 0
+                                || session.getAvailable_capacity_dose2() > 0)) {
 
-                    if (session.getAvailable_capacity() > 1) {
-                        validSessions.add(session);
-                    } else {
-                        System.out.println(
-                                center.toString() + " WITH SESSION " + session.toString() + " has one vaccine");
+                    if (alert.getDoseageType() == 1) {
+                        if (session.getAvailable_capacity_dose1() > 0) {
+                            validSessions.add(session);
+                        } else {
+                            log.debug("DoseType 1 not found for center" + center.toString() + " session: "
+                                    + session.toString());
+                        }
+                    } else if (alert.getDoseageType() == 2) {
+                        if (session.getAvailable_capacity_dose2() > 0) {
+                            validSessions.add(session);
+                        } else {
+                            log.debug("DoseType 2 not found for center" + center.toString() + " session: "
+                                    + session.toString());
+                        }
+                    } else if (alert.getDoseageType() == 0) {
+                        if (session.getAvailable_capacity() > 1) {
+                            validSessions.add(session);
+                        } else {
+                            log.debug("Dosage not found or less for center " + center.toString() + " WITH SESSION "
+                                    + session.toString() + " has vaccine count for both "
+                                    + session.getAvailable_capacity());
+                        }
                     }
+
+                } else {
+                    log.debug("Coditions not matched for alert id " + alert.getId() + " with vaccine type"
+                            + alert.getVaccineType() + " and session vaccine type " + session.getVaccine()
+                            + " age alert age = " + alert.getAge() + " and session age = " + session.getMin_age_limit()
+                            + " and capacity " + session.getAvailable_capacity());
                 }
             }
 
@@ -186,7 +227,7 @@ public class Utils {
         }
 
         if (avlResponseList.size() == 0) {
-            System.out.println("No avlResponseList Session found for Alert " + alert);
+            log.info("No avlResponseList Session found for Alert " + alert);
         }
 
         return avlResponseList;
@@ -213,6 +254,10 @@ public class Utils {
                 updatedMessage.append(org.apache.commons.lang3.StringUtils.capitalize(alert.getState()));
             }
         }
+
+        updatedMessage.append(" and vaccine type: ").append(alert.getVaccineType());
+        updatedMessage.append(" for dose type: ")
+                .append(alert.getDoseageType() == 0 ? "Any/Both" : "Dose " + alert.getDoseageType());
         updatedMessage.append("\n");
 
         if (avlResponseList.size() > 12) {
@@ -244,8 +289,27 @@ public class Utils {
                         updatedMessage.append("Date: ").append(session.getDate()).append("\n");
                         updatedMessage.append("Age: ").append(session.getMin_age_limit()).append("\n");
                         updatedMessage.append("Fee: ").append(res.getFees()).append("\n");
-                        updatedMessage.append("Available Count: ").append(session.getAvailable_capacity())
-                                .append(session.getAvailable_capacity() <= 10 ? " Hurry! " : "").append("\n");
+
+                        switch (alert.getDoseageType()) {
+                        case 0:
+                            updatedMessage.append("Available Count For Dose 1: ")
+                                    .append(session.getAvailable_capacity_dose1())
+                                    .append(session.getAvailable_capacity_dose1() <= 10 ? " Hurry! " : "").append("\n");
+                            updatedMessage.append("Available Count For Dose 2: ")
+                                    .append(session.getAvailable_capacity_dose2())
+                                    .append(session.getAvailable_capacity_dose2() <= 10 ? " Hurry! " : "").append("\n");
+                            break;
+                        case 1:
+                            updatedMessage.append("Available Count For Dose 1: ")
+                                    .append(session.getAvailable_capacity_dose1())
+                                    .append(session.getAvailable_capacity_dose1() <= 10 ? " Hurry! " : "").append("\n");
+                            break;
+                        case 2:
+                            updatedMessage.append("Available Count For Dose 2: ")
+                                    .append(session.getAvailable_capacity_dose2())
+                                    .append(session.getAvailable_capacity_dose2() <= 10 ? " Hurry! " : "").append("\n");
+                            break;
+                        }
                         updatedMessage.append("-------------------");
                     } else {
                         CowinResponseSessions session = itr2.next();
@@ -272,6 +336,7 @@ public class Utils {
         updatedMessage.append("Click here to stop recieving updates for all alerts:  /stopUpdates \n");
         updatedMessage.append("Click fetch Latest Update on this:  /fetchLatestUpdateFor" + alert.getId());
         updatedMessage.append("\n\nClick view updates to see all updates set by you:  /viewAlerts");
+        updatedMessage.append("\n\nFound a slot? Book it now at \nhttps://selfregistration.cowin.gov.in/ ");
 
         return updatedMessage.toString();
     }

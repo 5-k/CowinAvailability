@@ -54,7 +54,7 @@ public class EmailServce {
     private AppConfiguration appConfiguration;
 
     public void sendWelcomeMessage(Alerts alert) {
-        String disableAlerts = appConfiguration.getAppHostNameURL() + "/app/Alerts/delete/" + alert.getId();
+        String disableAlerts = appConfiguration.getAppHostNameURL() + "/app/alert/Alerts/delete/" + alert.getId();
         String message = this.actionResponseJson.get("welcome").replace("${clickHere}", disableAlerts);
         String subject = "Welcome to Cowin Alerts";
         sendEmail(alert, subject, message);
@@ -134,14 +134,35 @@ public class EmailServce {
                     if (vaccineInfoMessage.contains("${VaccineName}")) {
                         vaccineInfoMessage = vaccineInfoMessage.replace("${VaccineName}", session.getVaccine());
                     }
-
                     slotsAndCountBuilder.append("<li>");
                     slotsAndCountBuilder.append("<span>");
-                    slotsAndCountBuilder.append(session.getAvailable_capacity());
+
+                    switch (alert.getDoseageType()) {
+                    case 0:
+                        slotsAndCountBuilder.append("Available Count For <b>Dose 1</b>: ")
+                                .append(session.getAvailable_capacity_dose1())
+                                .append(session.getAvailable_capacity_dose1() <= 10 ? " Hurry! " : "");
+                        slotsAndCountBuilder.append(" And ");
+                        slotsAndCountBuilder.append("Available Count For <b>Dose 2</b>: ")
+                                .append(session.getAvailable_capacity_dose2())
+                                .append(session.getAvailable_capacity_dose2() <= 10 ? " Hurry! " : "").append("\n");
+                        break;
+                    case 1:
+                        slotsAndCountBuilder.append("Available Count For <b>Dose 1</b>: ")
+                                .append(session.getAvailable_capacity_dose1())
+                                .append(session.getAvailable_capacity_dose1() <= 10 ? " Hurry! " : "");
+                        break;
+                    case 2:
+                        slotsAndCountBuilder.append("Available Count For <b>Dose 2</b>: ")
+                                .append(session.getAvailable_capacity_dose2())
+                                .append(session.getAvailable_capacity_dose2() <= 10 ? " Hurry! " : "");
+                        break;
+                    }
+
                     slotsAndCountBuilder.append(" on ");
                     slotsAndCountBuilder.append(session.getDate());
                     slotsAndCountBuilder.append(" for age group ");
-                    slotsAndCountBuilder.append(session.getMin_age_limit() + "+");
+                    slotsAndCountBuilder.append(session.getMin_age_limit());
                     slotsAndCountBuilder.append(" charged at ");
                     slotsAndCountBuilder.append(res.getFees());
                     slotsAndCountBuilder.append("</span>");

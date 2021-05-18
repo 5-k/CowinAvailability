@@ -1,7 +1,6 @@
 package com.prateek.cowinAvailibility.service.chatbot;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +17,7 @@ import com.prateek.cowinAvailibility.repo.AlertRepo;
 import com.prateek.cowinAvailibility.repo.FeedbackRepo;
 import com.prateek.cowinAvailibility.service.DataService;
 import com.prateek.cowinAvailibility.service.ExternalService;
+import com.prateek.cowinAvailibility.utility.Constants;
 import com.prateek.cowinAvailibility.utility.HashMapCaseInsensitive;
 import com.prateek.cowinAvailibility.utility.Utils;
 
@@ -87,12 +87,38 @@ public class CowinTelegramChatBot {
                     || stringChatId.equals(appConfiguration.getDebugTelegramChatId())) {
                 Alerts alt = disableAlert.get();
                 alt.setActive(false);
+                alt.setModifiedAt(Utils.getCurrentDate());
                 alerRepo.save(alt);
                 responseList.add(actionResponseJson.get("deletesuccess"));
+                responseList
+                        .add("\nTo resume updated for this alert select **/resumeUpdatesForAlert" + alt.getId() + "**");
             } else {
                 responseList.add(actionResponseJson.get("deleteyouralertsonly"));
             }
-            responseList.add(actionResponseJson.get("/deletefeedback"));
+            responseList.add(actionResponseJson.get("/getFeedback"));
+            responseList.add(actionResponseJson.get("feedback"));
+            this.previousQuestion.put(chatId, "/feedback");
+            return responseList;
+        } else if (messageText.contains("resumeupdatesforalert")) {
+            String id = messageText.substring("resumeupdatesforalert".length() + 1);
+            Optional<Alerts> enableAlert = alerRepo.findById(Integer.parseInt(id));
+            if (null == enableAlert || !enableAlert.isPresent()) {
+                responseList.add(actionResponseJson.get("nosuchalert"));
+                return responseList;
+            }
+
+            Alerts alertVal = enableAlert.get();
+            if (alertVal.getPhoneNumber().contains(stringChatId)
+                    || stringChatId.equals(appConfiguration.getDebugTelegramChatId())) {
+                Alerts alt = enableAlert.get();
+                alt.setActive(true);
+                alt.setModifiedAt(Utils.getCurrentDate());
+                alerRepo.save(alt);
+                responseList.add(actionResponseJson.get("activesuccess"));
+            } else {
+                responseList.add(actionResponseJson.get("reactivateyouralertsonly"));
+            }
+            responseList.add(actionResponseJson.get("/getFeedback"));
             responseList.add(actionResponseJson.get("feedback"));
             this.previousQuestion.put(chatId, "/feedback");
             return responseList;
@@ -116,7 +142,7 @@ public class CowinTelegramChatBot {
                 return responseList;
             }
 
-            Set<AvlResponse> avlResponseList = Utils.processResponse(alertVal, res);
+            Set<AvlResponse> avlResponseList = Utils.processResponse(alertVal, res, log);
             if (avlResponseList.isEmpty()) {
                 responseList.add("Currently no vaccine is available as per the for Alert: " + alertVal.getId());
             } else {
@@ -127,19 +153,39 @@ public class CowinTelegramChatBot {
 
         switch (messageText) {
 
-        case "/stopupdates":
+        case "/stopupdates": {
             List<Alerts> alerts = alerRepo.findByPhoneNumber("telegram:" + chatId);
             if (null != alerts && alerts.size() > 0) {
-                for (int i = 0; i < alerts.size(); i++) {
-                    alerts.get(i).setActive(false);
+                for (Alerts alt : alerts) {
+                    alt.setActive(false);
+                    alt.setModifiedAt(Utils.getCurrentDate());
                 }
             }
+
             alerRepo.saveAll(alerts);
             responseList.add(actionResponseJson.get("disableAlert"));
-            responseList.add(actionResponseJson.get("/deletefeedback"));
+            responseList.add(actionResponseJson.get("/getFeedback"));
             responseList.add(actionResponseJson.get("feedback"));
             this.previousQuestion.put(chatId, "/feedback");
             return responseList;
+        }
+
+        case "/resumeupdates": {
+            List<Alerts> alerts = alerRepo.findByPhoneNumber("telegram:" + chatId);
+            if (null != alerts && alerts.size() > 0) {
+                for (Alerts alt : alerts) {
+                    alt.setActive(true);
+                    alt.setModifiedAt(Utils.getCurrentDate());
+                }
+            }
+
+            alerRepo.saveAll(alerts);
+            responseList.add(actionResponseJson.get("disableAlert"));
+            responseList.add(actionResponseJson.get("/getFeedback"));
+            responseList.add(actionResponseJson.get("feedback"));
+            this.previousQuestion.put(chatId, "/feedback");
+            return responseList;
+        }
 
         case "/feedback":
             if (this.alertMap.containsKey(chatId)) {
@@ -188,16 +234,22 @@ public class CowinTelegramChatBot {
             for (int i = 0; i < alertList.size(); i++) {
                 Alerts alt = alertList.get(i);
                 StringBuilder builder = new StringBuilder();
-                builder.append("For ");
+                builder.append("Name: ");
                 builder.append(alt.getName());
-                builder.append(" and age group ");
-                builder.append(alt.getAge());
-                builder.append("+ at location ");
+                builder.append("\nAge Group: ");
+                builder.append(alt.getAge()).append("+");
+                builder.append("\nLocation: ");
                 builder.append(alt.isPinCodeSearch() ? alt.getPincode() : alt.getCity() + "," + alt.getState());
-                builder.append("\n");
+                builder.append("\nVaccineType: ");
+                builder.append(StringUtils.capitalize(alt.getVaccineType()));
+                builder.append("\nDoseType: ");
+                builder.append((alt.getDoseageType() == 0) ? "Both" : "Dose " + alt.getDoseageType());
+
+                builder.append("\n\n");
                 builder.append("Fetch Latest update for this alert for **/fetchlatestupdatefor").append(alt.getId())
                         .append("**");
-
+                builder.append("\n\nDisable alert for this alert for **/stopupdatesforalert").append(alt.getId())
+                        .append("**");
                 builder.append("\n\n");
 
                 responseList.add(builder.toString());
@@ -214,7 +266,8 @@ public class CowinTelegramChatBot {
                     return responseList;
                 }
 
-                Feedback feedback = new Feedback("telegram:" + String.valueOf(chatId), messageText);
+                Feedback feedback = new Feedback("telegram:" + String.valueOf(chatId), messageText,
+                        Utils.getCurrentDate());
                 feedbackRepo.save(feedback);
                 if (this.alertMap.containsKey(chatId)) {
                     this.alertMap.remove(chatId);
@@ -379,10 +432,72 @@ public class CowinTelegramChatBot {
                     previousQuestion.put(chatId, "age");
                     return responseList;
                 }
+                response = actionResponseJson.get("vaccinechoice");
+                previousQuestion.put(chatId, "vaccinechoice");
+                responseList.add(response);
+                return responseList;
+
+            case "vaccinechoice":
+            case "/vaccinechoice":
+            case "vaccine choice":
+                if (messageText.contains("covaxin")) {
+                    alert.setVaccineType(Constants.VACCINE_TYPE_COVAXIN);
+                } else if (messageText.contains("covishield")) {
+                    alert.setVaccineType(Constants.VACCINE_TYPE_COVISHIELD);
+                } else if (messageText.contains("sputnik")) {
+                    alert.setVaccineType(Constants.VACCINE_TYPE_SPUTNIK);
+                } else if (messageText.contains("any")) {
+                    alert.setVaccineType(Constants.VACCINE_TYPE_ANY);
+                } else {
+                    responseList.add(actionResponseJson.get("invalidvaccinetype"));
+                    responseList.add(actionResponseJson.get("vaccinechoice"));
+                    previousQuestion.put(chatId, "/vaccinetype");
+                    return responseList;
+                }
+
+                if (alert.getVaccineType().equals(Constants.VACCINE_TYPE_SPUTNIK)) {
+                    response = actionResponseJson.get("success");
+                    previousQuestion.put(chatId, "success");
+                    alert.setCreatedAt(Utils.getCurrentDate());
+                    alert.setModifiedAt(Utils.getCurrentDate());
+
+                    String notType = alert.getNotificationType();
+                    if (null == notType || notType.length() == 0) {
+                        notType = "3";
+                    } else {
+                        notType = notType + ",3";
+                    }
+                    alert.setNotificationType(notType);
+                    alert.setPhoneNumber("telegram:" + chatId);
+                    alert.setActive(true);
+                    alerRepo.save(alert);
+                } else {
+                    responseList.add(actionResponseJson.get("dosetype"));
+                    previousQuestion.put(chatId, "dosetype");
+                    return responseList;
+                }
+                break;
+
+            case "dosetype":
+            case "/dosetype":
+            case "dose type":
+                if (messageText.contains("firstdose")) {
+                    alert.setDoseageType(1);
+                } else if (messageText.contains("seconddose")) {
+                    alert.setDoseageType(2);
+                } else if (messageText.contains("both")) {
+                    alert.setDoseageType(0);
+                } else {
+                    responseList.add(actionResponseJson.get("invaliddosetype"));
+                    responseList.add(actionResponseJson.get("dosetype"));
+                    previousQuestion.put(chatId, "/dosetype");
+                    return responseList;
+                }
+
                 response = actionResponseJson.get("success");
                 previousQuestion.put(chatId, "success");
-                alert.setCreatedAt(new Date());
-                alert.setModifiedAt(new Date());
+                alert.setCreatedAt(Utils.getCurrentDate());
+                alert.setModifiedAt(Utils.getCurrentDate());
 
                 String notType = alert.getNotificationType();
                 if (null == notType || notType.length() == 0) {
@@ -393,7 +508,6 @@ public class CowinTelegramChatBot {
                 alert.setNotificationType(notType);
                 alert.setPhoneNumber("telegram:" + chatId);
                 alert.setActive(true);
-                alert.setVaccineType("any");
                 alerRepo.save(alert);
                 break;
 

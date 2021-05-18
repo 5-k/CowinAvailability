@@ -16,15 +16,35 @@ public class CowinResponseSessions {
     private int min_age_limit;
     private String vaccine;
     private List<String> slots;
+    private int available_capacity_dose1;
+    private int available_capacity_dose2;
 
     @Override
     public String toString() {
-        return "CowinResponseSessions [available_capacity=" + available_capacity + ", date=" + date + ", min_age_limit="
-                + min_age_limit + ", session_id=" + session_id + ", slots=" + slots + ", vaccine=" + vaccine + "]";
+        return "CowinResponseSessions [available_capacity=" + available_capacity + ", available_capacity_dose1="
+                + available_capacity_dose1 + ", available_capacity_dose2=" + available_capacity_dose2 + ", date=" + date
+                + ", min_age_limit=" + min_age_limit + ", session_id=" + session_id + ", slots=" + slots + ", vaccine="
+                + vaccine + "]";
     }
 
     public String getSession_id() {
         return session_id;
+    }
+
+    public int getAvailable_capacity_dose1() {
+        return available_capacity_dose1;
+    }
+
+    public void setAvailable_capacity_dose1(int available_capacity_dose1) {
+        this.available_capacity_dose1 = available_capacity_dose1;
+    }
+
+    public int getAvailable_capacity_dose2() {
+        return available_capacity_dose2;
+    }
+
+    public void setAvailable_capacity_dose2(int available_capacity_dose2) {
+        this.available_capacity_dose2 = available_capacity_dose2;
     }
 
     public void setSession_id(String session_id) {

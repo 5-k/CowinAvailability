@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TimeZone;
 
 import com.prateek.cowinAvailibility.configuration.AppConfiguration;
 import com.prateek.cowinAvailibility.dto.cowinResponse.AvlResponse;
@@ -13,6 +14,8 @@ import com.prateek.cowinAvailibility.dto.cowinResponse.CowinResponse;
 import com.prateek.cowinAvailibility.entity.Alerts;
 import com.prateek.cowinAvailibility.entity.Notifications;
 import com.prateek.cowinAvailibility.repo.AlertRepo;
+import com.prateek.cowinAvailibility.utility.Utils;
+
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -66,13 +69,10 @@ public class CheckAvailivbilityService {
             if (CollectionUtils.isEmpty(alert.getNotifications())) {
                 log.debug("Running for Alert: " + alert.toString());
                 asyncProcessor.processAndNotify(alert);
-                continue;
-            }
-
-            if (shouldNotify(alert)) {
+            } else if (shouldNotify(alert)) {
                 asyncProcessor.processAndNotify(alert);
             } else {
-                log.debug("Running for Alert: " + alert.toString());
+                log.debug("Should Not Notify: for Alert: " + alert.toString());
             }
 
         }
@@ -100,10 +100,10 @@ public class CheckAvailivbilityService {
     }
 
     private boolean shouldNotify(Alerts alert) {
-        Date currentDate = new Date();
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(currentDate);
-        cal.add(Calendar.DATE, 0);
+
+        Calendar cal = Utils.getCalender();
+        cal.setTime(new Date());
+
         Collections.sort(alert.getNotifications());
         int notificationSentToday = 0;
 
@@ -128,7 +128,7 @@ public class CheckAvailivbilityService {
             if (latestNotification.get(Calendar.DATE) == cal.get(Calendar.DATE)
                     && latestNotification.get(Calendar.MONTH) == cal.get(Calendar.MONTH)
                     && latestNotification.get(Calendar.YEAR) == cal.get(Calendar.YEAR)) {
-                long td = currentDate.getTime() - notification.getCreatedAt().getTime();
+                long td = cal.getTime().getTime() - notification.getCreatedAt().getTime();
                 long timeinMinutes = (td) / 1000 / 60;
                 log.info("Last Notification sent at : " + notification.getCreatedAt() + " and current time is "
                         + cal.getTime() + " and their time difference in millis is " + td + " and in minutes is "

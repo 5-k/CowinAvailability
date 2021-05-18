@@ -9,6 +9,7 @@ import java.util.Optional;
 import com.prateek.cowinAvailibility.dto.AlertDTO;
 import com.prateek.cowinAvailibility.entity.Alerts;
 import com.prateek.cowinAvailibility.repo.AlertRepo;
+import com.prateek.cowinAvailibility.utility.Utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -40,10 +41,11 @@ public class Service {
 
         aDto.setActive(true);
         Alerts alert = new Alerts(aDto.getName(), aDto.getState(), aDto.getCity(), aDto.getPincode(),
-                aDto.getDistrictId(), aDto.getPhoneNumber(), aDto.isActive(), aDto.getAge(), aDto.getVaccineType(),
-                aDto.isPinCodeSearch(), aDto.getNotificationType(), aDto.getEmailAddress());
-        alert.setCreatedAt(new Date());
-        alert.setModifiedAt(new Date());
+                aDto.getDistrictId(), aDto.getPhoneNumber(), aDto.getEmailAddress(), aDto.isActive(), aDto.getAge(),
+                aDto.getVaccineType(), aDto.getDoseageType(), aDto.isPinCodeSearch(), aDto.getNotificationType());
+
+        alert.setCreatedAt(Utils.getCurrentDate());
+        alert.setModifiedAt(Utils.getCurrentDate());
         int x = alertRepo.save(alert).getId();
         log.info("User Alert created");
         return x;
@@ -128,7 +130,8 @@ public class Service {
 
         AlertDTO alertVal = new AlertDTO(alert.getId(), alert.getName(), alert.getState(), alert.getCity(),
                 alert.getPincode(), alert.getDistrictId(), alert.getPhoneNumber(), alert.isActive(), alert.getAge(),
-                alert.getVaccineType(), alert.isPinCodeSearch(), alert.getNotificationType(), alert.getEmail());
+                alert.getVaccineType(), alert.isPinCodeSearch(), alert.getNotificationType(), alert.getEmail(),
+                alert.getDoseageType());
         alertVal.setCreatedAt(alert.getCreatedAt());
         alertVal.setModifiedAt(alert.getModifiedAt());
         return alertVal;

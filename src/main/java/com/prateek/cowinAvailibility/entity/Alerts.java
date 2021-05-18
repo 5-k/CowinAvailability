@@ -66,6 +66,9 @@ public class Alerts {
     @Column(name = "vaccine_type", nullable = false)
     private String vaccineType;
 
+    @Column(name = "dosage_type")
+    private int doseageType;
+
     @Column(name = "is_pincode_search", nullable = false)
     private boolean isPinCodeSearch;
 
@@ -220,35 +223,44 @@ public class Alerts {
         this.isPinCodeSearch = isPinCodeSearch;
     }
 
-    public Alerts(String name, String state, String city, int pincode, int districtId, String phoneNumber,
-            boolean active, int age, String vaccineType, boolean isPinCodeSearch, String notificationType,
-            String emailId) {
+    public Alerts(String name, String state, String city, int pincode, int districtId, String phoneNumber, String email,
+            boolean active, int age, String vaccineType, int doseageType, boolean isPinCodeSearch,
+            String notificationType) {
         this.name = name;
         this.state = state;
         this.city = city;
         this.pincode = pincode;
         this.districtId = districtId;
         this.phoneNumber = phoneNumber;
+        this.email = email;
         this.active = active;
         this.age = age;
         this.vaccineType = vaccineType;
+        this.doseageType = doseageType;
         this.isPinCodeSearch = isPinCodeSearch;
         this.notificationType = notificationType;
-        this.email = emailId;
+    }
+
+    public int getDoseageType() {
+        return doseageType;
+    }
+
+    public void setDoseageType(int doseageType) {
+        this.doseageType = doseageType;
     }
 
     @Override
     public String toString() {
         return "Alerts [active=" + active + ", age=" + age + ", city=" + city + ", createdAt=" + createdAt
-                + ", districtId=" + districtId + ", email=" + email + ", id=" + id + ", isPinCodeSearch="
-                + isPinCodeSearch + ", modifiedAt=" + modifiedAt + ", name=" + name + ", notificationType="
-                + notificationType + ", phoneNumber=" + phoneNumber + ", pincode=" + pincode + ", state=" + state
-                + ", vaccineType=" + vaccineType + "]";
+                + ", districtId=" + districtId + ", doseageType=" + doseageType + ", email=" + email + ", id=" + id
+                + ", isPinCodeSearch=" + isPinCodeSearch + ", modifiedAt=" + modifiedAt + ", name=" + name
+                + ", notificationType=" + notificationType + ", notifications=" + notifications + ", phoneNumber="
+                + phoneNumber + ", pincode=" + pincode + ", state=" + state + ", vaccineType=" + vaccineType + "]";
     }
 
     public Alerts(int id, String name, String state, String city, int pincode, int districtId, String phoneNumber,
-            boolean active, int age, String vaccineType, boolean isPinCodeSearch, Date createdAt, Date modifiedAt,
-            String notificationType, String email) {
+            String email, boolean active, int age, String vaccineType, int doseageType, boolean isPinCodeSearch,
+            Date createdAt, Date modifiedAt, String notificationType, List<Notifications> notifications) {
         this.id = id;
         this.name = name;
         this.state = state;
@@ -256,14 +268,16 @@ public class Alerts {
         this.pincode = pincode;
         this.districtId = districtId;
         this.phoneNumber = phoneNumber;
+        this.email = email;
         this.active = active;
         this.age = age;
         this.vaccineType = vaccineType;
+        this.doseageType = doseageType;
         this.isPinCodeSearch = isPinCodeSearch;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
         this.notificationType = notificationType;
-        this.email = email;
+        this.notifications = notifications;
     }
 
 }

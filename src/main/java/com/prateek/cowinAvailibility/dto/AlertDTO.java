@@ -30,8 +30,17 @@ public class AlertDTO {
     private boolean isPinCodeSearch;
     private String notificationType; // 0 Whatsapp, 1 sms, 2 Email, 3 Telegram {Comma Seperated List Expected}
     private String emailAddress;
+    private int doseageType;
     private Date createdAt;
     private Date modifiedAt;
+
+    public int getDoseageType() {
+        return doseageType;
+    }
+
+    public void setDoseageType(int doseageType) {
+        this.doseageType = doseageType;
+    }
 
     public Date getCreatedAt() {
         return createdAt;
@@ -153,34 +162,21 @@ public class AlertDTO {
         this.isPinCodeSearch = isPinCodeSearch;
     }
 
+    public AlertDTO() {
+    }
+
     @Override
     public String toString() {
-        return "AlertDTO [active=" + active + ", age=" + age + ", city=" + city + ", districtId=" + districtId
-                + ", emailAddress=" + emailAddress + ", id=" + id + ", isPinCodeSearch=" + isPinCodeSearch + ", name="
+        return "AlertDTO [active=" + active + ", age=" + age + ", city=" + city + ", createdAt=" + createdAt
+                + ", districtId=" + districtId + ", doseageType=" + doseageType + ", emailAddress=" + emailAddress
+                + ", id=" + id + ", isPinCodeSearch=" + isPinCodeSearch + ", modifiedAt=" + modifiedAt + ", name="
                 + name + ", notificationType=" + notificationType + ", phoneNumber=" + phoneNumber + ", pincode="
                 + pincode + ", state=" + state + ", vaccineType=" + vaccineType + "]";
     }
 
-    public AlertDTO(String name, String state, String city, int pincode, int districtId, String phoneNumber,
-            boolean active, int age, String vaccineType, boolean isPinCodeSearch, String notificationType,
-            String emailAddress) {
-        this.name = name;
-        this.state = state;
-        this.city = city;
-        this.pincode = pincode;
-        this.districtId = districtId;
-        this.phoneNumber = phoneNumber;
-        this.active = active;
-        this.age = age;
-        this.vaccineType = vaccineType;
-        this.isPinCodeSearch = isPinCodeSearch;
-        this.notificationType = notificationType;
-        this.emailAddress = emailAddress;
-    }
-
     public AlertDTO(int id, String name, String state, String city, int pincode, int districtId, String phoneNumber,
             boolean active, int age, String vaccineType, boolean isPinCodeSearch, String notificationType,
-            String emailAddress) {
+            String emailAddress, int doseageType) {
         this.id = id;
         this.name = name;
         this.state = state;
@@ -194,8 +190,25 @@ public class AlertDTO {
         this.isPinCodeSearch = isPinCodeSearch;
         this.notificationType = notificationType;
         this.emailAddress = emailAddress;
+        this.doseageType = doseageType;
     }
 
-    public AlertDTO() {
+    public AlertDTO(String name, String state, String city, int pincode, int districtId, String phoneNumber,
+            boolean active, int age, String vaccineType, boolean isPinCodeSearch, String notificationType,
+            String emailAddress, int doseageType) {
+        this.name = name;
+        this.state = state;
+        this.city = city;
+        this.pincode = pincode;
+        this.districtId = districtId;
+        this.phoneNumber = phoneNumber;
+        this.active = active;
+        this.age = age;
+        this.vaccineType = vaccineType;
+        this.isPinCodeSearch = isPinCodeSearch;
+        this.notificationType = notificationType;
+        this.emailAddress = emailAddress;
+        this.doseageType = doseageType;
     }
+
 }

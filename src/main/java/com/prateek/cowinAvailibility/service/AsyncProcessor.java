@@ -5,9 +5,6 @@ import java.util.Set;
 
 import com.prateek.cowinAvailibility.dto.cowinResponse.AvlResponse;
 import com.prateek.cowinAvailibility.dto.cowinResponse.CowinResponse;
-import com.prateek.cowinAvailibility.dto.cowinResponse.CowinResponseCenter;
-import com.prateek.cowinAvailibility.dto.cowinResponse.CowinResponseSessions;
-import com.prateek.cowinAvailibility.dto.cowinResponse.CowinVaccineFees;
 import com.prateek.cowinAvailibility.entity.Alerts;
 import com.prateek.cowinAvailibility.service.chatbot.ITelegramSlotPoller;
 import com.prateek.cowinAvailibility.utility.Utils;
@@ -16,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +53,7 @@ public class AsyncProcessor implements IAsyncProcessor {
     }
 
     public Set<AvlResponse> processResponse(Alerts alert, CowinResponse response) {
-        return Utils.processResponse(alert, response);
+        return Utils.processResponse(alert, response, log);
     }
 
     @Override
