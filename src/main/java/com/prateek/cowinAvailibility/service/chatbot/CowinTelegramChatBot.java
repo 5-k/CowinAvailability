@@ -92,6 +92,7 @@ public class CowinTelegramChatBot {
                 responseList.add(actionResponseJson.get("deletesuccess"));
                 responseList
                         .add("\nTo resume updated for this alert select **/resumeUpdatesForAlert" + alt.getId() + "**");
+                responseList.add("To view alerts **/viewAlerts****");
             } else {
                 responseList.add(actionResponseJson.get("deleteyouralertsonly"));
             }

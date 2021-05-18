@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -26,12 +27,22 @@ public class TelegramController {
 
     @SuppressWarnings("unchecked")
     @RequestMapping(value = "/message/broadcast", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> sendMessageToAllActiveUsers(@RequestBody JsonResponse jsonResponse) {
+    public ResponseEntity<?> sendMessageToAllActiveUsers(@RequestBody JsonResponse jsonResponse,
+            @RequestParam("uniqueNumbers") boolean uniqueNumbers, @RequestParam("activeUsers") boolean activeUsers) {
         log.info("Rest to sendMessageToAllActiveUsers");
 
         try {
-            return new ResponseEntity(new JsonResponse(service.broadcastMessage(jsonResponse.getMessage())),
-                    org.springframework.http.HttpStatus.OK);
+            if (uniqueNumbers) {
+                return new ResponseEntity(
+                        new JsonResponse(
+                                service.broadcastMessageToDistinctPhoneNumbers(jsonResponse.getMessage(), activeUsers)),
+                        org.springframework.http.HttpStatus.OK);
+            } else {
+                return new ResponseEntity(
+                        new JsonResponse(service.broadcastMessage(jsonResponse.getMessage(), activeUsers)),
+                        org.springframework.http.HttpStatus.OK);
+            }
+
         } catch (Exception e) {
             log.error("Exception occurred : {} ", e.getMessage(), e);
             return new ResponseEntity<JsonResponse>(new JsonResponse("Exception adding alert"),

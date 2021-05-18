@@ -1,7 +1,9 @@
 package com.prateek.cowinAvailibility.service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import com.prateek.cowinAvailibility.entity.Alerts;
 import com.prateek.cowinAvailibility.repo.AlertRepo;
@@ -27,14 +29,51 @@ public class TelegramMessagingService {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    public String broadcastMessage(String message) {
-        List<Alerts> alerts = alertRepo.findByActiveTrue();
+    public String broadcastMessage(String message, boolean activeUsers) {
+        List<Alerts> alerts;
+        if (activeUsers) {
+            alerts = alertRepo.findByActiveTrue();
+        } else {
+            alerts = alertRepo.findByActiveFalse();
+        }
         for (int i = 0; i < alerts.size(); i++) {
             Alerts alt = alerts.get(i);
             try {
                 if (null != alt.getPhoneNumber() && alt.getPhoneNumber().contains("telegram:")) {
                     log.info("Sending broadcast message to chat");
                     sendNotification(alt, message);
+                }
+            } catch (Exception e) {
+                log.error("Failed to send broadcast for alert " + alt.toString(), e);
+            }
+
+        }
+        return "Success";
+    }
+
+    public String broadcastMessageToDistinctPhoneNumbers(String message, boolean activeUsers) {
+        List<Alerts> alerts;
+        if (activeUsers) {
+            alerts = alertRepo.findByActiveTrue();
+        } else {
+            alerts = alertRepo.findByActiveFalse();
+        }
+        Set<String> setOfPhone = new HashSet<String>();
+
+        for (int i = 0; i < alerts.size(); i++) {
+            Alerts alt = alerts.get(i);
+            try {
+                if (null != alt.getPhoneNumber() && alt.getPhoneNumber().contains("telegram:")) {
+                    String chatId = getChatIdByPhoneNumber(alt.getPhoneNumber());
+                    log.info("Sending broadcast message to chat " + chatId);
+                    if (setOfPhone.contains(chatId)) {
+                        log.warn("Not Sending message since already sent: " + chatId);
+                    } else {
+                        sendNotification(alt, message);
+                        setOfPhone.add(chatId);
+                    }
+                } else {
+                    log.warn("Not Sending message since not a telegram chatid");
                 }
             } catch (Exception e) {
                 log.error("Failed to send broadcast for alert " + alt.toString(), e);
