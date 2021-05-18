@@ -35,7 +35,7 @@
     
     "age" : "And what is your age range \n\n**/18To44** or \n\n**/45+** ?",
      
-    "success" : "We will notify you when slots are available in your area. You will be notified once per hour, in case the vaccine slots becomes available. 👍\n\nTo add more such alerts select **/start**\n\nView Your Alerts **/viewAlerts** \n\nPlease refer your friends to use this application",
+    "success" : "We will notify you when slots are available in your area. We verify the availability every 5 minutes and notify once per hour and maximum of 12 times in a day for each alert created, in case the vaccine slots becomes available. 👍\n\nTo add more such alerts select **/start**\n\nView Your Alerts **/viewAlerts** \n\nPlease refer your friends to use this application\n\nFor any suggestion, please select **/feedback**",
     "disableAlert" : "Alert is successfully deleted 👍",
 
     "deletealert": "What is the person name for which the alert has to be deleted?",
@@ -44,7 +44,8 @@
     "/deletealert": "What is the person name for which the alert has to be deleted?",
     
     "deletesuccess" : "Alert is successfully deleted 👍",
-    "/deletefeedback" : "How was your experience? Please do submit a feedback as the application is continuously trying to improve more feature for all its users.\nYour next message would be taken as feedback for us ",
+    "activesuccess" : "Alert is successfully reactivated 👍",
+    "/getFeedback" : "How was your experience? Please do submit a feedback as the application is continuously trying to improve more feature for all its users.\nYour next message would be taken as feedback for us \n\nTo cancel select /bye",
     "noalertssetontelegram": "Oops! Looks like no alerts have been set using the chatbot. To create your first alert start with **/start**",
     "alertslistedbelow":"Following alerts are registered with the phone",
 
@@ -55,11 +56,20 @@
     
     "invalid_response" : "Oops! Looks like an unknown response🥺. Please try again by answering the previous question😄\n\nTo start Again select **/start**  \nTo leave the chat select **/bye**  \nTo Submit a feedback select **/feedback**\nView Your Alerts **/viewAlerts**",
 
+    "reactivateyouralertsonly": "You can only reactivate alerts created by you. ",
     "deleteyouralertsonly": "You can only delete alerts created by you. ",
     "fetchonlyyouralerts": "You can only fetch updates on alerts created by you. ",
     "nosuchalert": "No Such alert found!",
     "/invalidEmail": "The Input Email seems to be invalid, please try again. To skip select \n\n/SkipEmailNotification",
     "invalidageselection" : "Invalid option selected, please retry!",
     "/invalidname" :"Name cannot start with a '/' or be less than 3 characters. Please retry!",
-    "/invalidFeedback":"Feedback cannot start with '/'. Please retry again. To cancel select \n\n/bye"
+    "/invalidFeedback":"Feedback cannot start with '/'. Please retry again. To cancel select \n\n/bye",
+
+    "vaccinechoice": "Please select choice of vaccine for which you want to be notified. \n\n **/Any** \n\n**/Covaxin** \n\n**/Covishield** \n\n**/SputnikV**\n",
+    "invalidvaccinetype": "Invalid Selection, Please select from the list of options.",
+
+    "dosetype": "Please select for which dose of vaccine is to be administered. At any center vaccines are available as per the dosage type, hence to recieve relevant notifications please select the relevant option  \n\n **/Both** \n\n**/FirstDose**  \n\n**/SecondDose**\n",
+    "invaliddosetype": "Invalid Selection, Please select from the list of options.",
+    
+    "cowinUrl": "https://selfregistration.cowin.gov.in/"
 }
