@@ -99,7 +99,7 @@ public class EmailServce {
 
     public String sendEmail(Alerts alert, Set<AvlResponse> avlResponseList) {
         String subject = getSubjectLine(alert);
-        String disableAlerts = appConfiguration.getAppHostNameURL() + "/app/Alerts/delete/" + alert.getId();
+        String disableAlerts = appConfiguration.getAppHostNameURL() + "/app/alert/Alerts/delete/" + alert.getId();
         String message = getHtmlVaccinationInfo(alert, avlResponseList, disableAlerts);
         return sendEmail(alert, subject, message);
 
