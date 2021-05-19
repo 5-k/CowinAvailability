@@ -141,21 +141,26 @@ public class EmailServce {
                     case 0:
                         slotsAndCountBuilder.append("Available Count For <b>Dose 1</b>: ")
                                 .append(session.getAvailable_capacity_dose1())
-                                .append(session.getAvailable_capacity_dose1() <= 10 ? " Hurry! " : "");
+                                .append(session.getAvailable_capacity_dose1() > 0
+                                        && session.getAvailable_capacity_dose1() <= 10 ? " Hurry! " : "");
                         slotsAndCountBuilder.append(" And ");
                         slotsAndCountBuilder.append("Available Count For <b>Dose 2</b>: ")
                                 .append(session.getAvailable_capacity_dose2())
-                                .append(session.getAvailable_capacity_dose2() <= 10 ? " Hurry! " : "").append("\n");
+                                .append(session.getAvailable_capacity_dose2() > 0
+                                        && session.getAvailable_capacity_dose2() <= 10 ? " Hurry! " : "")
+                                .append("\n");
                         break;
                     case 1:
                         slotsAndCountBuilder.append("Available Count For <b>Dose 1</b>: ")
                                 .append(session.getAvailable_capacity_dose1())
-                                .append(session.getAvailable_capacity_dose1() <= 10 ? " Hurry! " : "");
+                                .append(session.getAvailable_capacity_dose1() > 0
+                                        && session.getAvailable_capacity_dose1() <= 10 ? " Hurry! " : "");
                         break;
                     case 2:
                         slotsAndCountBuilder.append("Available Count For <b>Dose 2</b>: ")
                                 .append(session.getAvailable_capacity_dose2())
-                                .append(session.getAvailable_capacity_dose2() <= 10 ? " Hurry! " : "");
+                                .append(session.getAvailable_capacity_dose2() > 0
+                                        && session.getAvailable_capacity_dose2() <= 10 ? " Hurry! " : "");
                         break;
                     }
 

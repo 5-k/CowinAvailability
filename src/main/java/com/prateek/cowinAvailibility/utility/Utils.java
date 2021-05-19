@@ -305,20 +305,28 @@ public class Utils {
                         case 0:
                             updatedMessage.append("Available Count For Dose 1: ")
                                     .append(session.getAvailable_capacity_dose1())
-                                    .append(session.getAvailable_capacity_dose1() <= 10 ? " Hurry! " : "").append("\n");
+                                    .append(session.getAvailable_capacity_dose1() > 0
+                                            && session.getAvailable_capacity_dose1() <= 10 ? " Hurry! " : "")
+                                    .append("\n");
                             updatedMessage.append("Available Count For Dose 2: ")
                                     .append(session.getAvailable_capacity_dose2())
-                                    .append(session.getAvailable_capacity_dose2() <= 10 ? " Hurry! " : "").append("\n");
+                                    .append(session.getAvailable_capacity_dose2() > 0
+                                            && session.getAvailable_capacity_dose2() <= 10 ? " Hurry! " : "")
+                                    .append("\n");
                             break;
                         case 1:
                             updatedMessage.append("Available Count For Dose 1: ")
                                     .append(session.getAvailable_capacity_dose1())
-                                    .append(session.getAvailable_capacity_dose1() <= 10 ? " Hurry! " : "").append("\n");
+                                    .append(session.getAvailable_capacity_dose1() > 0
+                                            && session.getAvailable_capacity_dose1() <= 10 ? " Hurry! " : "")
+                                    .append("\n");
                             break;
                         case 2:
                             updatedMessage.append("Available Count For Dose 2: ")
                                     .append(session.getAvailable_capacity_dose2())
-                                    .append(session.getAvailable_capacity_dose2() <= 10 ? " Hurry! " : "").append("\n");
+                                    .append(session.getAvailable_capacity_dose2() > 0
+                                            && session.getAvailable_capacity_dose2() <= 10 ? " Hurry! " : "")
+                                    .append("\n");
                             break;
                         }
                         updatedMessage.append("-------------------");
