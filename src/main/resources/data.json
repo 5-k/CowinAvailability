@@ -35,7 +35,7 @@
     
     "age" : "And what is your age range \n\n**/18To44** or \n\n**/45+** ?",
      
-    "success" : "We will notify you when slots are available in your area. We verify the availability every 5 minutes and notify once per hour and maximum of 12 times in a day for each alert created, in case the vaccine slots becomes available. 👍\n\nTo add more such alerts select **/start**\n\nView Your Alerts **/viewAlerts** \n\nPlease refer your friends to use this application\n\nFor any suggestion, please select **/feedback**",
+    "success" : "We will notify you when slots are available in your area. We verify the availability every 5 minutes and notify once in 45 minutes and max of 12 times in a day for each alert created, in case the vaccine slots becomes available. 👍\n\nTo add more such alerts select **/start**\n\nView Your Alerts **/viewAlerts** \n\nPlease refer your friends to use this application\n\nFor any suggestion, please select **/feedback**",
     "disableAlert" : "Alert is successfully deleted 👍",
 
     "deletealert": "What is the person name for which the alert has to be deleted?",

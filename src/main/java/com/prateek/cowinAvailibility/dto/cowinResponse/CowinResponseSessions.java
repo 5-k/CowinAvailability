@@ -1,5 +1,6 @@
 package com.prateek.cowinAvailibility.dto.cowinResponse;
 
+import java.io.Serializable;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -9,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class CowinResponseSessions {
+public class CowinResponseSessions implements Serializable {
     private String session_id;
     private String date;
     private int available_capacity;
@@ -91,16 +92,4 @@ public class CowinResponseSessions {
         this.slots = slots;
     }
 
-    public String getVaccineAVLResponseString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Slot - ");
-        builder.append(this.getDate());
-        builder.append(" for Type - ");
-        builder.append(this.getVaccine());
-        builder.append(" with quantity available - ");
-        builder.append(this.getAvailable_capacity());
-        builder.append(" for Age Limit - ");
-        builder.append(this.getMin_age_limit());
-        return builder.toString();
-    }
 }

@@ -1,6 +1,5 @@
 package com.prateek.cowinAvailibility.service;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -9,6 +8,7 @@ import com.prateek.cowinAvailibility.configuration.AppConfiguration;
 import com.prateek.cowinAvailibility.dto.cowinResponse.AvlResponse;
 import com.prateek.cowinAvailibility.entity.Alerts;
 import com.prateek.cowinAvailibility.service.chatbot.ITelegramSlotPoller;
+import com.prateek.cowinAvailibility.utility.Converter;
 import com.prateek.cowinAvailibility.utility.Utils;
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
@@ -35,23 +35,23 @@ public class NotificationService {
 
     public String sendWhatsAppMessage(Alerts alert, Set<AvlResponse> avlResponseList) {
 
-        log.info("Initiating Whatsapp Message for Alert " + alert.toString());
+        log.info("Initiating Whatsapp Message for Alert " + alert.getId());
         return splitSendMessage(alert, avlResponseList, true);
     }
 
     public String sendTestMessage(Alerts alert, Set<AvlResponse> avlResponseList) {
-        log.info("Initiating Text Message for Alert " + alert.toString());
+        log.info("Initiating Text Message for Alert " + alert.getId());
         return splitSendMessage(alert, avlResponseList, false);
     }
 
     public String sendEmail(Alerts alert, Set<AvlResponse> avlResponseList) {
-        log.info("Initiating Email for Alert " + alert.toString());
+        log.info("Initiating Email for Alert " + alert.getId());
         emailServce.sendEmail(alert, avlResponseList);
         return "";
     }
 
     public String sendTelegramMessage(Alerts alert, Set<AvlResponse> avlResponseList, boolean debug) {
-        if (appConfiguration.isDebugMode() && debug) {
+        if (appConfiguration.isDebugMode()) {
             telegramService.sendVaccineUpdatestoSelf(alert, avlResponseList);
         }
 
@@ -77,7 +77,7 @@ public class NotificationService {
         StringBuilder buidBuilder = new StringBuilder();
         Iterator<AvlResponse> itr = avlResponseList.iterator();
         while (itr.hasNext()) {
-            buidBuilder.append(itr.next().getVaccineAVLResponseString());
+            buidBuilder.append(Converter.getVaccineAVLResponseString(itr.next()));
             buidBuilder.append("\n");
         }
 

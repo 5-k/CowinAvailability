@@ -1,5 +1,6 @@
 package com.prateek.cowinAvailibility.dto.cowinResponse;
 
+import java.io.Serializable;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -9,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class CowinResponse {
+public class CowinResponse implements Serializable {
     private List<CowinResponseCenter> centers;
 
     @Override

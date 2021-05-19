@@ -42,7 +42,7 @@ public class AsyncProcessor implements IAsyncProcessor {
             log.warn("List AvlResponse size = " + avlResponseList.size());
 
             if (avlResponseList.size() > 0) {
-                generateNotificationService.notifyUsers(alert, avlResponseList);
+                notifyUsers(alert, avlResponseList);
             } else {
                 log.info("Nothing to notify ");
             }
@@ -52,8 +52,15 @@ public class AsyncProcessor implements IAsyncProcessor {
 
     }
 
+    @Override
     public Set<AvlResponse> processResponse(Alerts alert, CowinResponse response) {
         return Utils.processResponse(alert, response, log);
+    }
+
+    @Async
+    @Override
+    public void notifyUsers(Alerts alert, Set<AvlResponse> avlResponseList) {
+        generateNotificationService.notifyUsers(alert, avlResponseList);
     }
 
     @Override

@@ -11,7 +11,6 @@ import com.prateek.cowinAvailibility.repo.AlertRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Component("generateNotificationService")
@@ -25,7 +24,6 @@ public class GenerateNotificationService implements IGenerateNotificationService
     @Autowired
     private AlertRepo alertRepo;
 
-    @Async
     public void notifyUsers(Alerts alert, Set<AvlResponse> avlResponseList) {
         Date currentDate = new Date();
 
@@ -45,28 +43,26 @@ public class GenerateNotificationService implements IGenerateNotificationService
         log.info("Notifaction for Alert for notification type: " + notificationType);
         switch (notificationType) {
 
-            case 0:
-                cost = notificationService.sendWhatsAppMessage(alert, avlResponseList);
-                break;
+        case 0:
+            cost = notificationService.sendWhatsAppMessage(alert, avlResponseList);
+            break;
 
-            case 1:
-                cost = notificationService.sendTestMessage(alert, avlResponseList);
-                break;
+        case 1:
+            cost = notificationService.sendTestMessage(alert, avlResponseList);
+            break;
 
-            case 2:
-                cost = notificationService.sendEmail(alert, avlResponseList);
-                break;
+        case 2:
+            cost = notificationService.sendEmail(alert, avlResponseList);
+            break;
 
-            case 3:
-                cost = notificationService.sendTelegramMessage(alert, avlResponseList, false);
-                break;
+        case 3:
+            cost = notificationService.sendTelegramMessage(alert, avlResponseList, false);
+            break;
         }
 
         Notifications not2 = new Notifications(date, alert.getPhoneNumber(), alert, cost, notificationType);
         alert.getNotifications().add(not2);
         alertRepo.save(alert);
-        log.info("Notifiication saved");
-
-        log.info("Successfully returning from Notifications");
+        log.info("Notifiication saved for alert: " + alert.getId());
     }
 }

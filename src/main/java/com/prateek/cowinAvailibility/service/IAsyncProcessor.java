@@ -17,4 +17,6 @@ public interface IAsyncProcessor {
     CowinResponse checkByPinCode(int pincode);
 
     CowinResponse checkAvlByDistrict(int districtId);
+
+    void notifyUsers(Alerts alert, Set<AvlResponse> avlResponseList);
 }

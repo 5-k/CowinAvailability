@@ -3,25 +3,33 @@ package com.prateek.cowinAvailibility.service;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.prateek.cowinAvailibility.configuration.AppConfiguration;
+import com.prateek.cowinAvailibility.configuration.ReddisCacheConfig;
+import com.prateek.cowinAvailibility.dto.MetricsDTO;
 import com.prateek.cowinAvailibility.dto.cowinResponse.AvlResponse;
 import com.prateek.cowinAvailibility.dto.cowinResponse.CowinResponse;
 import com.prateek.cowinAvailibility.entity.Alerts;
+import com.prateek.cowinAvailibility.entity.Metrics;
 import com.prateek.cowinAvailibility.entity.Notifications;
 import com.prateek.cowinAvailibility.repo.AlertRepo;
+import com.prateek.cowinAvailibility.repo.MetricsRepo;
 import com.prateek.cowinAvailibility.utility.Utils;
 
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,34 +55,95 @@ public class CheckAvailivbilityService {
     @Autowired
     private AppConfiguration appConfiguration;
 
+    private ObjectMapper mapper = new ObjectMapper();
+
+    @Autowired
+    private ReddisCacheConfig reddisCacheConfig;
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private MetricsRepo metricsRepo;
+
     public void forceRunCron() {
         checkContiniousAVL();
     }
 
     @Scheduled(cron = "${app.checkAVLCronJob}")
-    @Async
     public void checkContiniousAVL() {
-        log.info("Cron Job to check avl");
+        log.info("Cron Job to Notify Users");
+
         List<Alerts> alerts = alertRepo.findByActiveTrue();
+        Date startTime = new Date();
 
         if (null == alerts || alerts.size() == 0) {
             log.warn("No Alerts Setup, return empty ");
             return;
         }
+        log.info("Run cron Job on alert size: " + alerts.size());
+        ;
+        MetricsDTO met = new MetricsDTO();
 
-        log.warn("Cron running for Alert count: " + alerts.size());
+        for (Alerts alt : alerts) {
+            Set<AvlResponse> processedResponse;
+            CowinResponse res = getData(alt.isPinCodeSearch() ? alt.getPincode() : alt.getDistrictId(),
+                    alt.isPinCodeSearch(), met);
+            processedResponse = Utils.processResponse(alt, res, log);
+            if (null != processedResponse && processedResponse.size() > 0) {
+                met.incrementslotAvailableCount();
+                checkAndNotify(alt, processedResponse, met);
+            }
+        }
 
-        for (int i = 0; i < alerts.size(); i++) {
-            Alerts alert = alerts.get(i);
-            if (CollectionUtils.isEmpty(alert.getNotifications())) {
-                log.debug("Running for Alert: " + alert.toString());
-                asyncProcessor.processAndNotify(alert);
-            } else if (shouldNotify(alert)) {
-                asyncProcessor.processAndNotify(alert);
+        log.info("Metrics for this cron Job: " + met.toString());
+
+        Date endDate = new Date();
+        log.info("Method took : " + (endDate.getTime() - startTime.getTime()) + " MILLIS TO RUN");
+
+        Metrics metric = Utils.fromMetricDto(met);
+        metric.setStartTime(startTime);
+        metric.setEndTime(endDate);
+        metricsRepo.save(metric);
+    }
+
+    public CowinResponse getData(Integer districtOrPincode, boolean isPinCodeSearch, MetricsDTO met) {
+        CowinResponse res = null;
+
+        try {
+            ValueOperations<String, String> cache = this.redisTemplate.opsForValue();
+            String cacheKey = districtOrPincode.toString();
+            String data = cache.get(cacheKey);
+            if (null == data) {
+                res = (isPinCodeSearch) ? asyncProcessor.checkByPinCode(districtOrPincode)
+                        : asyncProcessor.checkAvlByDistrict(districtOrPincode);
+                if (null == res) {
+                    met.incrementDataNotLoaded();
+                    log.error("Null response from districtorpincode" + districtOrPincode);
+                    return null;
+                }
+                cache.set(cacheKey, mapper.writeValueAsString(res), reddisCacheConfig.getCacheExpiryInSeconds(),
+                        TimeUnit.SECONDS);
+                met.incrementDataLoadedFromAPI();
             } else {
-                log.debug("Should Not Notify: for Alert: " + alert.toString());
+                met.incrementDataLoadedFromCache();
+                res = mapper.readValue(data, CowinResponse.class);
             }
 
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            met.incrementDataNotLoaded();
+        }
+        return res;
+    }
+
+    private void checkAndNotify(Alerts alt, Set<AvlResponse> res, MetricsDTO met) {
+        if (CollectionUtils.isEmpty(alt.getNotifications()) || shouldNotify(alt)) {
+            log.debug("Running for Alert: " + alt.getId());
+            met.incrementNotificationEligibleCount();
+            asyncProcessor.notifyUsers(alt, res);
+        } else {
+            log.debug("Should Not Notify: for Alert: " + alt.getId());
         }
     }
 
@@ -118,8 +187,8 @@ public class CheckAvailivbilityService {
         }
 
         if (notificationSentToday >= this.appConfiguration.getMaxNotificationPerAlertPerDay()) {
-            log.info("Already getMaxNotificationPerAlertPerDay notification issued to this mobile number:  for alert "
-                    + alert.toString() + " Not issuing current one");
+            log.debug("Already getMaxNotificationPerAlertPerDay notification issued to this mobile number:  for alert "
+                    + alert.getId() + " Not issuing current one");
             return false;
         } else if (notificationSentToday > 0) {
             Notifications notification = alert.getNotifications().get(0); // Latest Notificiation
@@ -137,7 +206,7 @@ public class CheckAvailivbilityService {
                 if (timeinMinutes < appConfiguration.getTimeDifferenceBetweenPreviousNotificationInMins()) {
                     log.info("Max notification is 1 every "
                             + appConfiguration.getTimeDifferenceBetweenPreviousNotificationInMins()
-                            + ", not sending notification for " + alert);
+                            + ", not sending notification for " + alert.getId());
                     return false;
                 }
             }

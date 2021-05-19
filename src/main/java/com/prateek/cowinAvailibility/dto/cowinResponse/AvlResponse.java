@@ -4,6 +4,8 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
 
+import com.prateek.cowinAvailibility.utility.Converter;
+
 public class AvlResponse {
 
     private int centerId;
@@ -113,35 +115,6 @@ public class AvlResponse {
     public String toString() {
         return "{" + " centerName='" + getCenterName() + "'" + ", centerAddress='" + getCenterAddress() + "'"
                 + ", pincode='" + getPincode() + "'" + ", sessions='" + getSessions() + "'" + "}";
-    }
-
-    public String getVaccineAVLResponseString() {
-        StringBuilder vaccineResponse = new StringBuilder();
-        vaccineResponse.append("Vaccine is available as per your Alert Request");
-        vaccineResponse.append("at center : ");
-        vaccineResponse.append(this.getCenterName());
-        vaccineResponse.append(" located at ");
-        vaccineResponse.append(this.getCenterAddress());
-        vaccineResponse.append(" ");
-        vaccineResponse.append(this.getPincode());
-        vaccineResponse.append(" for the following sessions ");
-
-        if (this.getSessions() == null || this.getSessions().size() > 0) {
-            return "";
-        }
-
-        Iterator<CowinResponseSessions> vldSessions = this.getSessions().iterator();
-        while (vldSessions.hasNext()) {
-            CowinResponseSessions session = vldSessions.next();
-            if (session.getAvailable_capacity() > 0) {
-                vaccineResponse.append("\n ");
-                vaccineResponse.append(session.getVaccineAVLResponseString());
-                vaccineResponse.append(" ");
-            }
-        }
-
-        vaccineResponse.append("\n");
-        return vaccineResponse.toString();
     }
 
 }

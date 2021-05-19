@@ -8,15 +8,16 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.TreeMap;
 
+import com.prateek.cowinAvailibility.dto.MetricsDTO;
 import com.prateek.cowinAvailibility.dto.cowinResponse.AvlResponse;
 import com.prateek.cowinAvailibility.dto.cowinResponse.CowinResponse;
 import com.prateek.cowinAvailibility.dto.cowinResponse.CowinResponseCenter;
 import com.prateek.cowinAvailibility.dto.cowinResponse.CowinResponseSessions;
 import com.prateek.cowinAvailibility.dto.cowinResponse.CowinVaccineFees;
 import com.prateek.cowinAvailibility.entity.Alerts;
+import com.prateek.cowinAvailibility.entity.Metrics;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -155,6 +156,9 @@ public class Utils {
 
     public static Set<AvlResponse> processResponse(Alerts alert, CowinResponse response, Logger log) {
         Set<AvlResponse> avlResponseList = new LinkedHashSet<AvlResponse>();
+        if (null == response) {
+            return avlResponseList;
+        }
 
         for (int i = 0; i < response.getCenters().size(); i++) {
             CowinResponseCenter center = response.getCenters().get(i);
@@ -172,14 +176,14 @@ public class Utils {
                                 || session.getAvailable_capacity_dose2() > 0)) {
 
                     if (alert.getDoseageType() == 1) {
-                        if (session.getAvailable_capacity_dose1() > 0) {
+                        if (session.getAvailable_capacity_dose1() > 1) {
                             validSessions.add(session);
                         } else {
                             log.debug("DoseType 1 not found for center" + center.toString() + " session: "
                                     + session.toString());
                         }
                     } else if (alert.getDoseageType() == 2) {
-                        if (session.getAvailable_capacity_dose2() > 0) {
+                        if (session.getAvailable_capacity_dose2() > 1) {
                             validSessions.add(session);
                         } else {
                             log.debug("DoseType 2 not found for center" + center.toString() + " session: "
@@ -196,10 +200,13 @@ public class Utils {
                     }
 
                 } else {
-                    log.debug("Coditions not matched for alert id " + alert.getId() + " with vaccine type"
-                            + alert.getVaccineType() + " and session vaccine type " + session.getVaccine()
-                            + " age alert age = " + alert.getAge() + " and session age = " + session.getMin_age_limit()
-                            + " and capacity " + session.getAvailable_capacity());
+                    /*
+                     * log.debug("Coditions not matched for alert id " + alert.getId() +
+                     * " with vaccine type" + alert.getVaccineType() + " and session vaccine type "
+                     * + session.getVaccine() + " age alert age = " + alert.getAge() +
+                     * " and session age = " + session.getMin_age_limit() + " and capacity " +
+                     * session.getAvailable_capacity());
+                     */
                 }
             }
 
@@ -227,13 +234,17 @@ public class Utils {
         }
 
         if (avlResponseList.size() == 0) {
-            log.info("No avlResponseList Session found for Alert " + alert);
+            log.debug("No avlResponseList Session found for Alert " + alert);
         }
 
         return avlResponseList;
     }
 
     public static String getTelegramAlertMessage(Alerts alert, Set<AvlResponse> avlResponseList) {
+        if (null == avlResponseList || avlResponseList.size() == 0) {
+            return null;
+        }
+
         StringBuilder updatedMessage = new StringBuilder();
         updatedMessage.append("Hi ");
         if (null != alert.getName()) {
@@ -341,4 +352,9 @@ public class Utils {
         return updatedMessage.toString();
     }
 
+    public static Metrics fromMetricDto(MetricsDTO metricsDTO) {
+        return new Metrics(metricsDTO.getDataLoadedFromAPI(), metricsDTO.getDataLoadedFromCache(),
+                metricsDTO.getDataNotLoaded(), metricsDTO.getSlotAvailableCount(),
+                metricsDTO.getNotificationEligibleCount());
+    }
 }

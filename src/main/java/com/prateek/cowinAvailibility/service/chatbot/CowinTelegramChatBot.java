@@ -139,7 +139,7 @@ public class CowinTelegramChatBot {
             }
 
             if (null == res) {
-                responseList.add("No vaccine available as per the alert: " + alert.getId());
+                responseList.add("No vaccine available as per the alert: " + alertVal.getId());
                 return responseList;
             }
 

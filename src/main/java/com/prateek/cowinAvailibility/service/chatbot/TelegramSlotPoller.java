@@ -66,10 +66,10 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
                     + update.getMessage().getMessageId());
 
             List<String> response = cowinTelegramChatBot.getResponseForMessage(messageText, longchatId);
-            log.debug("Got Message for the input - " + messageText);
+            log.info("Got Message for the input - " + messageText);
 
             String chatId = String.valueOf(longchatId);
-            log.debug("response --> " + response);
+            log.info("response --> " + response);
             for (int i = 0; i < response.size(); i++) {
                 sendResponse(chatId, response.get(i), true, false);
                 chatLogger.logChat(longchatId, response.get(i), false);
@@ -80,6 +80,11 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
     }
 
     public void sendResponse(String chatId, String response, boolean enableMarkdown, boolean enableHtml) {
+        if (null == response || response.length() == 0) {
+            log.warn("Null message, not sending message: " + chatId);
+            return;
+        }
+
         List<String> responseList = Utils.splitToNChar(response, 4000);
 
         for (String resp : responseList) {
@@ -98,7 +103,6 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
             } catch (TelegramApiException e) {
                 log.error("Exception for sending message to chat id " + chatId + " with exception " + e.getMessage(),
                         e);
-                e.printStackTrace();
             }
         }
 
@@ -138,7 +142,7 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
     public void sendVaccineUpdatestoSelf(Alerts alert, Set<AvlResponse> avlResponseList) {
         String message = Utils.getTelegramAlertMessage(alert, avlResponseList);
         String chatId = appConfiguration.getDebugTelegramChatId();
-        log.debug("Sending message " + message + "\n to chat id " + chatId);
+        log.trace("Sending message " + message + "\n to chat id " + chatId);
         sendVaccineUpdates(chatId, message);
     }
 

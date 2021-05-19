@@ -41,37 +41,32 @@ public class ExternalService {
 
     public CowinResponse getData(int districtOrPincode, boolean isPinCode) {
 
-        ResponseEntity<CowinResponse> response = getDataWithRetry(districtOrPincode, isPinCode, 0);
+        ResponseEntity<CowinResponse> response = getDataWithRetry(districtOrPincode, isPinCode);
 
         if (null != response && response.getStatusCode() == HttpStatus.OK) {
             log.info("Got Result from API   response code " + response.getStatusCode());
             return response.getBody();
         } else {
-            log.info("Got null from API response code " + response.getStatusCode());
+            log.info("Got null  from API response code " + response);
         }
 
-        return response.getBody();
+        return null;
     }
 
-    private ResponseEntity<CowinResponse> getDataWithRetry(int districtOrPincode, boolean isPinCode, int count) {
+    private ResponseEntity<CowinResponse> getDataWithRetry(int districtOrPincode, boolean isPinCode) {
         try {
             ResponseEntity<CowinResponse> response = getParsedData(districtOrPincode, isPinCode);
-            if ((null == response || response.getStatusCode() != HttpStatus.OK)
-                    && count < appConfiguration.getCowinAPIMaxRetry()) {
-                count++;
-                return getDataWithRetry(districtOrPincode, isPinCode, count);
-            } else {
-                return response;
-            }
+            log.info("Got Result from API   response code " + response.getStatusCode());
+            return response;
         } catch (Exception e) {
-            log.error("Exception occurred calling cowin api: " + e.getMessage() + " count = " + count, e);
-            count++;
-            return getDataWithRetry(districtOrPincode, isPinCode, count);
+            log.error("Exception occurred calling cowin api: " + e.getMessage());
         }
+        return null;
     }
 
     private ResponseEntity<CowinResponse> getParsedData(int districtOrPincode, boolean isPinCode) {
         RestTemplate restTemplate = new RestTemplate(getClientHttpRequestFactory());
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("accept",

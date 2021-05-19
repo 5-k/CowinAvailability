@@ -1,6 +1,8 @@
 package com.prateek.cowinAvailibility.dto.cowinResponse;
 
-public class CowinVaccineFees {
+import java.io.Serializable;
+
+public class CowinVaccineFees implements Serializable {
 
     private String vaccine;
     private String fees;
