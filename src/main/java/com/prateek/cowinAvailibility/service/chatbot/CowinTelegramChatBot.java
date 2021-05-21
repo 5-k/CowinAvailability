@@ -147,7 +147,7 @@ public class CowinTelegramChatBot {
             if (avlResponseList.isEmpty()) {
                 responseList.add("Currently no vaccine is available as per the for Alert: " + alertVal.getId());
             } else {
-                responseList.add(Utils.getTelegramAlertMessage(alertVal, avlResponseList));
+                responseList.add(Utils.getTelegramAlertMessage(alertVal, avlResponseList, true));
             }
             return responseList;
         }

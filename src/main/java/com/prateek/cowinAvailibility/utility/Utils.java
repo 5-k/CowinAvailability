@@ -2,6 +2,7 @@ package com.prateek.cowinAvailibility.utility;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -240,7 +241,8 @@ public class Utils {
         return avlResponseList;
     }
 
-    public static String getTelegramAlertMessage(Alerts alert, Set<AvlResponse> avlResponseList) {
+    public static String getTelegramAlertMessage(Alerts alert, Set<AvlResponse> avlResponseList,
+            boolean isUserInitiated) {
         if (null == avlResponseList || avlResponseList.size() == 0) {
             return null;
         }
@@ -279,10 +281,15 @@ public class Utils {
 
         Iterator<AvlResponse> itr = avlResponseList.iterator();
         int i = 0;
+        int totalSessions = 0;
+        int sessionMoreThan10AVl = 0;
+
         while (itr.hasNext()) {
             i++;
             AvlResponse res = itr.next();
-            Set<CowinResponseSessions> set = res.getSessions();
+            List<CowinResponseSessions> set = new ArrayList<>(res.getSessions());
+            Collections.sort(set);
+
             updatedMessage.append("\n\n");
             updatedMessage.append("🚑").append(res.getCenterName()).append(" - ").append(res.getCenterAddress())
                     .append("-").append(res.getPincode()).append("\n");
@@ -290,6 +297,7 @@ public class Utils {
             if (null != set && set.size() > 0) {
                 Iterator<CowinResponseSessions> itr2 = set.iterator();
                 int j = 0;
+                totalSessions++;
 
                 while (itr2.hasNext()) {
                     j++;
@@ -303,6 +311,7 @@ public class Utils {
 
                         switch (alert.getDoseageType()) {
                         case 0:
+                            sessionMoreThan10AVl += (session.getAvailable_capacity() > 10) ? 1 : 0;
                             updatedMessage.append("Available Count For Dose 1: ")
                                     .append(session.getAvailable_capacity_dose1())
                                     .append(session.getAvailable_capacity_dose1() > 0
@@ -315,6 +324,7 @@ public class Utils {
                                     .append("\n");
                             break;
                         case 1:
+                            sessionMoreThan10AVl += (session.getAvailable_capacity_dose1() > 10) ? 1 : 0;
                             updatedMessage.append("Available Count For Dose 1: ")
                                     .append(session.getAvailable_capacity_dose1())
                                     .append(session.getAvailable_capacity_dose1() > 0
@@ -322,6 +332,7 @@ public class Utils {
                                     .append("\n");
                             break;
                         case 2:
+                            sessionMoreThan10AVl += (session.getAvailable_capacity_dose2() > 10) ? 1 : 0;
                             updatedMessage.append("Available Count For Dose 2: ")
                                     .append(session.getAvailable_capacity_dose2())
                                     .append(session.getAvailable_capacity_dose2() > 0
@@ -356,6 +367,13 @@ public class Utils {
         updatedMessage.append("Click fetch Latest Update on this:  /fetchLatestUpdateFor" + alert.getId());
         updatedMessage.append("\n\nClick view updates to see all updates set by you:  /viewAlerts");
         updatedMessage.append("\n\nFound a slot? Book it now at \nhttps://selfregistration.cowin.gov.in/ ");
+
+        System.out.println("For Alert: " + alert.getId() + " total sessions are " + totalSessions
+                + " and more than 10 are: " + sessionMoreThan10AVl);
+        if (sessionMoreThan10AVl == 0 && !isUserInitiated) {
+            System.out.println("No Session more than 10 availability, not sending notification");
+            return null;
+        }
 
         return updatedMessage.toString();
     }

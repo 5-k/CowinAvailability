@@ -3,9 +3,7 @@ package com.prateek.cowinAvailibility.service;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -72,10 +70,15 @@ public class CheckAvailivbilityService {
 
     @Scheduled(cron = "${app.checkAVLCronJob}")
     public void checkContiniousAVL() {
-        log.info("Cron Job to Notify Users");
+
+        Date startTime = new Date();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(startTime);
+
+        log.info("Cron Job to Notify Users at : " + cal.getTime());
+        boolean isNightTime = checkIfNightTime(cal);
 
         List<Alerts> alerts = alertRepo.findByActiveTrue();
-        Date startTime = new Date();
 
         if (null == alerts || alerts.size() == 0) {
             log.warn("No Alerts Setup, return empty ");
@@ -105,6 +108,20 @@ public class CheckAvailivbilityService {
         metric.setStartTime(startTime);
         metric.setEndTime(endDate);
         metricsRepo.save(metric);
+    }
+
+    private boolean checkIfNightTime(Calendar cal) {
+        int hour = cal.get(Calendar.HOUR);
+        int minutes = cal.get(Calendar.MINUTE);
+
+        log.info("Current Hour: " + hour + " and minute: " + minutes);
+
+        if ((hour > this.appConfiguration.getNightTimeStart()) || (hour < this.appConfiguration.getNightTimeEnd())) {
+            log.info("Its night time, not sending notifications:");
+            return true;
+        }
+
+        return false;
     }
 
     public CowinResponse getData(Integer districtOrPincode, boolean isPinCodeSearch, MetricsDTO met) {
@@ -143,7 +160,7 @@ public class CheckAvailivbilityService {
             met.incrementNotificationEligibleCount();
             asyncProcessor.notifyUsers(alt, res);
         } else {
-            log.debug("Should Not Notify: for Alert: " + alt.getId());
+            log.debug("Should Not Notify: for Alert: " + alt.getId() + " with set size: " + res.size());
         }
     }
 

@@ -84,15 +84,6 @@ public class AlertController {
         }
     }
 
-    // Remove Alert
-    @SuppressWarnings("unchecked")
-    @RequestMapping(value = "/Alerts/delete/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> disableAlertById(@PathVariable int id) {
-        removeAlertById(id);
-        return new ResponseEntity(
-                "You have been successfully removed from the alert list. Thankyou and have a good day!", HttpStatus.OK);
-    }
-
     @SuppressWarnings("unchecked")
     @RequestMapping(value = "/Alerts/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> removeAlertById(@PathVariable int id) {

@@ -1,6 +1,10 @@
 package com.prateek.cowinAvailibility.service;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -54,7 +58,7 @@ public class EmailServce {
     private AppConfiguration appConfiguration;
 
     public void sendWelcomeMessage(Alerts alert) {
-        String disableAlerts = appConfiguration.getAppHostNameURL() + "/app/alert/Alerts/delete/" + alert.getId();
+        String disableAlerts = appConfiguration.getAppHostNameURL() + "/api/Alerts/delete/" + alert.getId();
         String message = this.actionResponseJson.get("welcome").replace("${clickHere}", disableAlerts);
         String subject = "Welcome to Cowin Alerts";
         sendEmail(alert, subject, message);
@@ -94,15 +98,17 @@ public class EmailServce {
             log.error(mex.getMessage(), mex);
             mex.printStackTrace();
         }
-        return "0";
+        return "Email_Char_Length__" + htmlMessage.length();
     }
 
     public String sendEmail(Alerts alert, Set<AvlResponse> avlResponseList) {
         String subject = getSubjectLine(alert);
-        String disableAlerts = appConfiguration.getAppHostNameURL() + "/app/alert/Alerts/delete/" + alert.getId();
+        String disableAlerts = appConfiguration.getAppHostNameURL() + "/api/Alerts/delete/" + alert.getId();
         String message = getHtmlVaccinationInfo(alert, avlResponseList, disableAlerts);
-        return sendEmail(alert, subject, message);
-
+        if (null != message) {
+            return sendEmail(alert, subject, message);
+        }
+        return null;
     }
 
     private String getSubjectLine(Alerts alert) {
@@ -117,10 +123,14 @@ public class EmailServce {
 
         Iterator<AvlResponse> itr = avlResponseList.iterator();
         StringBuilder vcInfoBuilder = new StringBuilder();
+        int totalSessions = 0;
+        int sessionMoreThan10AVl = 0;
 
         while (itr.hasNext()) {
             AvlResponse res = itr.next();
-            Set<CowinResponseSessions> set = res.getSessions();
+            List<CowinResponseSessions> set = new ArrayList<>(res.getSessions());
+            Collections.sort(set);
+
             String vaccineInfoMessage = vaccinationInfoMessage.replace("${VaccinationCenter}",
                     res.getCenterName() + " - " + res.getCenterAddress() + " - " + res.getPincode());
 
@@ -136,9 +146,11 @@ public class EmailServce {
                     }
                     slotsAndCountBuilder.append("<li>");
                     slotsAndCountBuilder.append("<span>");
+                    totalSessions++;
 
                     switch (alert.getDoseageType()) {
                     case 0:
+                        sessionMoreThan10AVl += (session.getAvailable_capacity() > 10) ? 1 : 0;
                         slotsAndCountBuilder.append("Available Count For <b>Dose 1</b>: ")
                                 .append(session.getAvailable_capacity_dose1())
                                 .append(session.getAvailable_capacity_dose1() > 0
@@ -151,12 +163,14 @@ public class EmailServce {
                                 .append("\n");
                         break;
                     case 1:
+                        sessionMoreThan10AVl += (session.getAvailable_capacity_dose1() > 10) ? 1 : 0;
                         slotsAndCountBuilder.append("Available Count For <b>Dose 1</b>: ")
                                 .append(session.getAvailable_capacity_dose1())
                                 .append(session.getAvailable_capacity_dose1() > 0
                                         && session.getAvailable_capacity_dose1() <= 10 ? " Hurry! " : "");
                         break;
                     case 2:
+                        sessionMoreThan10AVl += (session.getAvailable_capacity_dose2() > 10) ? 1 : 0;
                         slotsAndCountBuilder.append("Available Count For <b>Dose 2</b>: ")
                                 .append(session.getAvailable_capacity_dose2())
                                 .append(session.getAvailable_capacity_dose2() > 0
@@ -179,6 +193,13 @@ public class EmailServce {
 
                 vcInfoBuilder.append(vaccineInfoMessage);
             }
+        }
+
+        log.info("For Alert: " + alert.getId() + " total sessions are " + totalSessions + " and more than 10 are: "
+                + sessionMoreThan10AVl);
+        if (sessionMoreThan10AVl == 0) {
+            log.info("No Session more than 10 availability, not sending notification");
+            return null;
         }
 
         String response = updatedMessage.replace("${AllVaccinationDetails}", vcInfoBuilder.toString());

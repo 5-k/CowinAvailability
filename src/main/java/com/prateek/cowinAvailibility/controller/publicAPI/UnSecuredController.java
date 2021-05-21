@@ -2,6 +2,7 @@ package com.prateek.cowinAvailibility.controller.publicAPI;
 
 import com.prateek.cowinAvailibility.service.CheckAvailivbilityService;
 import com.prateek.cowinAvailibility.service.IAsyncProcessor;
+import com.prateek.cowinAvailibility.service.Service;
 import com.prateek.cowinAvailibility.utility.JsonResponse;
 
 import org.slf4j.Logger;
@@ -21,6 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class UnSecuredController {
     @Autowired
     private CheckAvailivbilityService service;
+
+    @Autowired
+    private Service otherService;
 
     @Autowired
     @Qualifier("AsyncProcessor")
@@ -57,4 +61,14 @@ public class UnSecuredController {
                     HttpStatus.EXPECTATION_FAILED);
         }
     }
+
+    // Remove Alert
+    @SuppressWarnings("unchecked")
+    @RequestMapping(value = "/Alerts/delete/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> disableAlertById(@PathVariable int id) {
+        otherService.removeAlertById(id);
+        return new ResponseEntity(
+                "You have been successfully removed from the alert list. Thankyou and have a good day!", HttpStatus.OK);
+    }
+
 }

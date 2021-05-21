@@ -79,10 +79,11 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
         }
     }
 
-    public void sendResponse(String chatId, String response, boolean enableMarkdown, boolean enableHtml) {
+    @Override
+    public String sendResponse(String chatId, String response, boolean enableMarkdown, boolean enableHtml) {
         if (null == response || response.length() == 0) {
             log.warn("Null message, not sending message: " + chatId);
-            return;
+            return null;
         }
 
         List<String> responseList = Utils.splitToNChar(response, 4000);
@@ -105,7 +106,7 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
                         e);
             }
         }
-
+        return responseList.size() + "___" + response.length();
     }
 
     // Not Used
@@ -118,46 +119,38 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
         }
     }
 
-    public void sendVaccineUpdates(Alerts alert, String message) {
-        try {
-            log.debug("Response to publish ", message);
-            String chatId = alert.getPhoneNumber().substring(alert.getPhoneNumber().indexOf(":") + 1);
-            sendResponse(chatId, message, true, false);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
-    }
-
-    public void sendVaccineUpdates(Alerts alert, Set<AvlResponse> avlResponseList) {
-        String message = Utils.getTelegramAlertMessage(alert, avlResponseList);
+    @Override
+    public String sendVaccineUpdates(Alerts alert, String message) {
+        log.debug("Response to publish ", message);
         String chatId = alert.getPhoneNumber().substring(alert.getPhoneNumber().indexOf(":") + 1);
-        sendVaccineUpdates(chatId, message);
+        return sendResponse(chatId, message, true, false);
     }
 
     @Override
-    public void sendVaccineUpdatestoSelf(Alerts alert, Set<AvlResponse> avlResponseList) {
-        String message = Utils.getTelegramAlertMessage(alert, avlResponseList);
-        String chatId = appConfiguration.getDebugTelegramChatId();
-        log.trace("Sending message " + message + "\n to chat id " + chatId);
+    public String sendVaccineUpdates(Alerts alert, Set<AvlResponse> avlResponseList) {
+        String message = Utils.getTelegramAlertMessage(alert, avlResponseList, false);
+        String chatId = alert.getPhoneNumber().substring(alert.getPhoneNumber().indexOf(":") + 1);
         sendVaccineUpdates(chatId, message);
+        return String.valueOf(avlResponseList.size());
     }
 
-    private void sendVaccineUpdates(String chatId, String message) {
-        try {
-            sendResponse(chatId, message, true, false);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
+    @Override
+    public String sendVaccineUpdatestoSelf(Alerts alert, Set<AvlResponse> avlResponseList) {
+        String message = Utils.getTelegramAlertMessage(alert, avlResponseList, false);
+        String chatId = appConfiguration.getDebugTelegramChatId();
+        log.trace("Sending message " + message + "\n to chat id " + chatId);
+        return sendVaccineUpdates(chatId, message);
     }
 
     @Async
-    public void sendVaccineUpdatestoSelf(String message) {
+    @Override
+    public String sendVaccineUpdatestoSelf(String message) {
         String chatId = appConfiguration.getDebugTelegramChatId();
-        try {
-            sendResponse(chatId, message, true, false);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
+        return sendResponse(chatId, message, true, false);
+    }
+
+    private String sendVaccineUpdates(String chatId, String message) {
+        return sendResponse(chatId, message, true, false);
     }
 
 }

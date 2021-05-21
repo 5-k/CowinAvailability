@@ -60,6 +60,8 @@ public class AppConfiguration {
     private String debugEmailId;
 
     private int cowinAPIMaxRetry;
+    private int nightTimeStart;
+    private int nightTimeEnd;
 
     public int getCowinAPIMaxRetry() {
         return cowinAPIMaxRetry;
@@ -71,6 +73,22 @@ public class AppConfiguration {
 
     public String getDebugEmailId() {
         return debugEmailId;
+    }
+
+    public int getNightTimeStart() {
+        return nightTimeStart;
+    }
+
+    public void setNightTimeStart(int nightTimeStart) {
+        this.nightTimeStart = nightTimeStart;
+    }
+
+    public int getNightTimeEnd() {
+        return nightTimeEnd;
+    }
+
+    public void setNightTimeEnd(int nightTimeEnd) {
+        this.nightTimeEnd = nightTimeEnd;
     }
 
     public void setDebugEmailId(String debugEmailId) {

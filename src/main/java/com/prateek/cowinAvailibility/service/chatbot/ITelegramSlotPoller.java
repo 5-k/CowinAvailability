@@ -7,13 +7,13 @@ import com.prateek.cowinAvailibility.entity.Alerts;
 
 public interface ITelegramSlotPoller {
 
-    public void sendVaccineUpdates(Alerts alert, String message);
+    public String sendVaccineUpdates(Alerts alert, String message);
 
-    public void sendVaccineUpdates(Alerts alert, Set<AvlResponse> avlResponseList);
+    public String sendVaccineUpdates(Alerts alert, Set<AvlResponse> avlResponseList);
 
-    public void sendVaccineUpdatestoSelf(Alerts alert, Set<AvlResponse> avlResponseList);
+    public String sendVaccineUpdatestoSelf(Alerts alert, Set<AvlResponse> avlResponseList);
 
-    public void sendVaccineUpdatestoSelf(String message);
+    public String sendVaccineUpdatestoSelf(String message);
 
-    public void sendResponse(String chatId, String response, boolean enableMarkdown, boolean enableHtml);
+    public String sendResponse(String chatId, String response, boolean enableMarkdown, boolean enableHtml);
 }

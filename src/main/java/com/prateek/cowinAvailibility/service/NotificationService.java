@@ -46,8 +46,7 @@ public class NotificationService {
 
     public String sendEmail(Alerts alert, Set<AvlResponse> avlResponseList) {
         log.info("Initiating Email for Alert " + alert.getId());
-        emailServce.sendEmail(alert, avlResponseList);
-        return "";
+        return emailServce.sendEmail(alert, avlResponseList);
     }
 
     public String sendTelegramMessage(Alerts alert, Set<AvlResponse> avlResponseList, boolean debug) {

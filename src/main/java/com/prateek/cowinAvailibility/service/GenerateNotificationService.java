@@ -60,6 +60,11 @@ public class GenerateNotificationService implements IGenerateNotificationService
             break;
         }
 
+        if (null == cost) {
+            log.warn("Notification not sent because of less seats!");
+            return;
+        }
+
         Notifications not2 = new Notifications(date, alert.getPhoneNumber(), alert, cost, notificationType);
         alert.getNotifications().add(not2);
         alertRepo.save(alert);

@@ -1,10 +1,7 @@
 package com.prateek.cowinAvailibility.dto.cowinResponse;
 
-import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
-
-import com.prateek.cowinAvailibility.utility.Converter;
 
 public class AvlResponse {
 

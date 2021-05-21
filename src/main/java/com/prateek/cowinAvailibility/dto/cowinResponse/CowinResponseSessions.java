@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class CowinResponseSessions implements Serializable {
+public class CowinResponseSessions implements Serializable, Comparable<CowinResponseSessions> {
     private String session_id;
     private String date;
     private int available_capacity;
@@ -90,6 +90,11 @@ public class CowinResponseSessions implements Serializable {
 
     public void setSlots(List<String> slots) {
         this.slots = slots;
+    }
+
+    @Override
+    public int compareTo(CowinResponseSessions o) {
+        return o.available_capacity - this.available_capacity;
     }
 
 }
