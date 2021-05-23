@@ -77,6 +77,9 @@ public class CheckAvailivbilityService {
 
         log.info("Cron Job to Notify Users at : " + cal.getTime());
         boolean isNightTime = checkIfNightTime(cal);
+        if (isNightTime) {
+            return;
+        }
 
         List<Alerts> alerts = alertRepo.findByActiveTrue();
 
@@ -111,7 +114,7 @@ public class CheckAvailivbilityService {
     }
 
     private boolean checkIfNightTime(Calendar cal) {
-        int hour = cal.get(Calendar.HOUR);
+        int hour = cal.get(Calendar.HOUR_OF_DAY);
         int minutes = cal.get(Calendar.MINUTE);
 
         log.info("Current Hour: " + hour + " and minute: " + minutes);
