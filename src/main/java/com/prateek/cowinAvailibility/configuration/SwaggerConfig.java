@@ -52,7 +52,7 @@ public class SwaggerConfig {
         ApiInfo apiInfo = new ApiInfo("Cowin Availability Notifier Application",
                 "This application is a alert generating application. In India, vaccination trials require booking slots via https://cowin.gov.in . But due to a large demand, usually the vaccines are unavailable. This applicattion help users to create alerts. The alerts created are monitored using a cron job and the user is notified on availability.",
                 "2.0", "https://github.com/5-k/CowinAvailability",
-                new Contact("Prateek Mishra", "https://www.prateek-mishra.me", "prateek15mishra@gmail.com"),
+                new Contact("Prateek Mishra", "https://www.prateekmishra.me", "prateek15mishra@gmail.com"),
                 "Apache License Version 2.0", "https://www.apache.org/licenses/LICENSE-2.0", new ArrayList<>());
         return apiInfo;
     }
