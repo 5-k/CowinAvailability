@@ -57,10 +57,8 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
         long longchatId = update.getMessage().getChatId();
         String chatId = String.valueOf(longchatId);
         List<String> response = cowinTelegramChatBot.getResponseForMessage(messageText, longchatId);
-        for (int i = 0; i < response.size(); i++) {
-            sendResponse(chatId, response.get(i), true,  true);
-            chatLogger.logChat(longchatId, response.get(i), false);
-        }
+
+        sendMessageFromList(chatId, response, true, false);
 
         int random = 1000000 + (int)(Math.random() * ((9999999 -1000000) + 1));
         String idVal = "MessageAlert: " + chatId + "_" + random ;
