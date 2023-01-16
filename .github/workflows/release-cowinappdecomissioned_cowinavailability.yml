@@ -21,6 +21,22 @@ jobs:
         with:
           java-version: '11'
 
+      - name: Replace tokens
+        uses: cschleiden/replace-tokens@v1.2
+          with:
+            files: '["**/*.yml"]'
+            tokenPrefix: '${'
+            tokenSuffix: '}'
+          env:
+            EMAILFrom: ${{secrets.EMAILFrom}}
+            emailFromPassword: ${{secrets.emailFromPassword}}
+            BotName: ${{secrets.BotName}}
+            BotToken: ${{secrets.BotToken}}
+            TwiloAccoundSid: ${{secrets.TwiloAccoundSid}}
+            TwiloAuthToken: ${{secrets.TwiloAuthToken}}
+            TwiloSendNumber: ${{secrets.TwiloSendNumber}}
+            DebugTelegramId: ${{secrets.DebugTelegramId}}
+            DebugEmailId: ${{secrets.DebugEmailId}}
       - name: Build with Maven
         run: mvn clean install
 
