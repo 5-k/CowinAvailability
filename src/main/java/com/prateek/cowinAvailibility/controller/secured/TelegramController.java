@@ -1,8 +1,5 @@
 package com.prateek.cowinAvailibility.controller.secured;
 
-import com.prateek.cowinAvailibility.service.TelegramMessagingService;
-import com.prateek.cowinAvailibility.utility.JsonResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.prateek.cowinAvailibility.service.TelegramMessagingService;
+import com.prateek.cowinAvailibility.utility.JSONRequestMultiple;
+import com.prateek.cowinAvailibility.utility.JSONResponseMultiple;
+import com.prateek.cowinAvailibility.utility.JsonResponse;
 
 @RestController
 @RequestMapping("/api/telegram")
@@ -63,6 +65,29 @@ public class TelegramController {
             return new ResponseEntity<JsonResponse>(new JsonResponse("Exception adding alert"),
                     HttpStatus.EXPECTATION_FAILED);
         }
+    }
+
+    
+    @RequestMapping(value = "/message/userMessage", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> sendMessageToMultipleUserWithChatId(@RequestBody JSONRequestMultiple jsonResponse) {
+        log.info("Rest to sendMessageToMultipleUserWithChatId");
+        String[] splitString = jsonResponse.getCommaSeperatedChatId().split(",");
+        JSONResponseMultiple response = new JSONResponseMultiple();
+        
+        for(String chatId: splitString) {
+            try {
+                chatId = chatId.trim();
+
+                service.sendMessageToChatId(String.valueOf(chatId), jsonResponse.getMessage());
+                response.addtoSuccessList(chatId);
+                
+            } catch (Exception e) {
+                log.error("Exception occurred : {} ", e.getMessage(), e);
+                response.addtoErrorList(chatId, e.getMessage());
+            }
+        }
+        return new ResponseEntity<JSONResponseMultiple>(response,org.springframework.http.HttpStatus.OK);
+        
     }
 
     @SuppressWarnings("unchecked")
