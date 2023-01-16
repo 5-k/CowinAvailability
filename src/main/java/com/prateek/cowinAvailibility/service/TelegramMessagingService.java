@@ -5,17 +5,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import com.prateek.cowinAvailibility.entity.Alerts;
-import com.prateek.cowinAvailibility.repo.AlertRepo;
-import com.prateek.cowinAvailibility.service.chatbot.ITelegramSlotPoller;
-import com.prateek.cowinAvailibility.service.chatbot.TelegramSlotPoller;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import com.prateek.cowinAvailibility.entity.Alerts;
+import com.prateek.cowinAvailibility.repo.AlertRepo;
+import com.prateek.cowinAvailibility.service.chatbot.ITelegramSlotPoller;
 
 @Service
 public class TelegramMessagingService {

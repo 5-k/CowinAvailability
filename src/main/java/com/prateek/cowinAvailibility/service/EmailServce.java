@@ -1,7 +1,6 @@
 package com.prateek.cowinAvailibility.service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -16,15 +15,15 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import com.prateek.cowinAvailibility.configuration.AppConfiguration;
-import com.prateek.cowinAvailibility.dto.cowinResponse.AvlResponse;
-import com.prateek.cowinAvailibility.dto.cowinResponse.CowinResponseSessions;
-import com.prateek.cowinAvailibility.entity.Alerts;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.prateek.cowinAvailibility.configuration.AppConfiguration;
+import com.prateek.cowinAvailibility.dto.cowinResponse.AvlResponse;
+import com.prateek.cowinAvailibility.dto.cowinResponse.CowinResponseSessions;
+import com.prateek.cowinAvailibility.entity.Alerts;
 
 @Service
 public class EmailServce {

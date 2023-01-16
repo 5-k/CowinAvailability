@@ -1,9 +1,7 @@
 package com.prateek.cowinAvailibility.controller.secured;
 
-import com.prateek.cowinAvailibility.service.CheckAvailivbilityService;
-import com.prateek.cowinAvailibility.service.IAsyncProcessor;
-import com.prateek.cowinAvailibility.utility.JsonResponse;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -13,8 +11,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.prateek.cowinAvailibility.service.CheckAvailivbilityService;
+import com.prateek.cowinAvailibility.service.IAsyncProcessor;
+import com.prateek.cowinAvailibility.utility.JsonResponse;
 
 @RestController
 @RequestMapping("/app/availability")

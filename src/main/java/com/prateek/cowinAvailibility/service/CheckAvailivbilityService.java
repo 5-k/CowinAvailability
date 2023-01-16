@@ -8,6 +8,15 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.prateek.cowinAvailibility.configuration.AppConfiguration;
 import com.prateek.cowinAvailibility.configuration.ReddisCacheConfig;
@@ -20,16 +29,6 @@ import com.prateek.cowinAvailibility.entity.Notifications;
 import com.prateek.cowinAvailibility.repo.AlertRepo;
 import com.prateek.cowinAvailibility.repo.MetricsRepo;
 import com.prateek.cowinAvailibility.utility.Utils;
-
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Service
 public class CheckAvailivbilityService {
@@ -68,7 +67,7 @@ public class CheckAvailivbilityService {
         checkContiniousAVL();
     }
 
-    @Scheduled(cron = "${app.checkAVLCronJob}")
+    //@Scheduled(cron = "${app.checkAVLCronJob}")
     public void checkContiniousAVL() {
 
         Date startTime = new Date();

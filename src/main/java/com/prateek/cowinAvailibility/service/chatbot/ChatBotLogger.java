@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Component("ChatBotLogger")
+//@Component("ChatBotLogger")
 public class ChatBotLogger implements IChatBotLogger {
 
     @Autowired
@@ -45,7 +45,7 @@ public class ChatBotLogger implements IChatBotLogger {
     }
 
     @Override
-    @Scheduled(cron = "${app.logChatbotCron}")
+    //@Scheduled(cron = "${app.logChatbotCron}")
     public void saveLogAsync() {
         try {
             List<TelegramChatHistory> tempList = new ArrayList<>(this.list);

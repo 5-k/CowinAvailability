@@ -52,7 +52,7 @@ public class UnSecuredController {
     public ResponseEntity<?> fetchAlertDataDebug(@PathVariable int id) {
         log.info("Refresh /app/availability/Alert/" + id);
 
-        try {\
+        try {
             service.refreshAvl(id, true);
             return new ResponseEntity(new JsonResponse("Success"), HttpStatus.OK);
         } catch (Exception e) {

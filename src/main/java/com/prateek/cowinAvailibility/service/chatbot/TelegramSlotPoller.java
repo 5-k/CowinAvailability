@@ -1,28 +1,25 @@
 package com.prateek.cowinAvailibility.service.chatbot;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import com.prateek.cowinAvailibility.configuration.AppConfiguration;
-import com.prateek.cowinAvailibility.dto.cowinResponse.AvlResponse;
-import com.prateek.cowinAvailibility.dto.cowinResponse.CowinResponseSessions;
-import com.prateek.cowinAvailibility.entity.Alerts;
-import com.prateek.cowinAvailibility.utility.Utils;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.bots.*;
+import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.prateek.cowinAvailibility.configuration.AppConfiguration;
+import com.prateek.cowinAvailibility.dto.cowinResponse.AvlResponse;
+import com.prateek.cowinAvailibility.entity.Alerts;
+import com.prateek.cowinAvailibility.utility.Utils;
 
 @Component("telegramSlotPoller")
 public class TelegramSlotPoller extends TelegramLongPollingBot implements ITelegramSlotPoller {
@@ -54,28 +51,14 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasMessage() && update.getMessage().hasText()) {
-            long longchatId = update.getMessage().getChatId();
-
-            String messageText = update.getMessage().getText();
-            chatLogger.logChat(longchatId, messageText, true);
-
-            log.info("Input Message", messageText);
-            log.info("updateId - " + update.getUpdateId() + " - getChatId " + update.getMessage().getChatId()
-                    + " isCommand- " + update.getMessage().isCommand() + " - getMessageId "
-                    + update.getMessage().getMessageId());
-
-            List<String> response = cowinTelegramChatBot.getResponseForMessage(messageText, longchatId);
-            log.info("Got Message for the input - " + messageText);
-
-            String chatId = String.valueOf(longchatId);
-            log.info("response --> " + response);
-            for (int i = 0; i < response.size(); i++) {
-                sendResponse(chatId, response.get(i), true, false);
-                chatLogger.logChat(longchatId, response.get(i), false);
-            }
-        } else {
-            sendResponse(update.getMessage().getChatId().toString(), "Please send text message", true, false);
+        
+        String messageText = update.getMessage().getText();
+        long longchatId = update.getMessage().getChatId();
+        String chatId = String.valueOf(longchatId);
+        List<String> response = cowinTelegramChatBot.getResponseForMessage(messageText, longchatId);
+        for (int i = 0; i < response.size(); i++) {
+            sendResponse(chatId, response.get(i), true,  true);
+            chatLogger.logChat(longchatId, response.get(i), false);
         }
     }
 

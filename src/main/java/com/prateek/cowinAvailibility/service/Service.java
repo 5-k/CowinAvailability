@@ -1,20 +1,18 @@
 package com.prateek.cowinAvailibility.service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.prateek.cowinAvailibility.dto.AlertDTO;
 import com.prateek.cowinAvailibility.entity.Alerts;
 import com.prateek.cowinAvailibility.repo.AlertRepo;
 import com.prateek.cowinAvailibility.utility.Utils;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author prateek.mishra Service class performaing actual CRUD operations

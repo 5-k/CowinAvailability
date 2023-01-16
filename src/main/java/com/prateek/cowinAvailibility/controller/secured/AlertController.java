@@ -1,9 +1,5 @@
 package com.prateek.cowinAvailibility.controller.secured;
 
-import com.prateek.cowinAvailibility.dto.AlertDTO;
-import com.prateek.cowinAvailibility.service.Service;
-import com.prateek.cowinAvailibility.utility.JsonResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +12,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.annotations.*;
+import com.prateek.cowinAvailibility.dto.AlertDTO;
+import com.prateek.cowinAvailibility.service.Service;
+import com.prateek.cowinAvailibility.utility.JsonResponse;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
 
 @RestController
 @RequestMapping("/app/alert")
