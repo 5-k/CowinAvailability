@@ -13,20 +13,20 @@ import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-@Configuration
+//@Configuration
 public class ReddisManager {
 
-    @Autowired
+    //@Autowired
     private ReddisCacheConfig config;
 
-    @Bean
+    //@Bean
     public RedisCacheConfiguration cacheConfiguration() {
         RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofSeconds(600)).disableCachingNullValues();
         return cacheConfig;
     }
 
-    @Bean
+    //@Bean
     public RedisCacheManager cacheManager() {
         RedisCacheManager rcm = RedisCacheManager.builder(jedisConnectionFactory()).cacheDefaults(cacheConfiguration())
                 .transactionAware().build();
@@ -34,7 +34,7 @@ public class ReddisManager {
         return rcm;
     }
 
-    @Bean
+    //@Bean
     public RedisTemplate<String, String> redisTemplate() {
         RedisTemplate<String, String> template = new RedisTemplate<>();
         template.setValueSerializer(new StringRedisSerializer());
@@ -42,7 +42,7 @@ public class ReddisManager {
         return template;
     }
 
-    @Bean
+    //@Bean
     public JedisConnectionFactory jedisConnectionFactory() {
         RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(
                 this.config.getHost(), this.config.getPort());

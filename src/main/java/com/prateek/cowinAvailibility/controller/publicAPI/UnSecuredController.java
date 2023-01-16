@@ -38,7 +38,7 @@ public class UnSecuredController {
         log.info("Refresh /app/availability/Alert/" + id);
 
         try {
-            service.refreshAvl(id, false);
+            //service.refreshAvl(id, false);
             return new ResponseEntity(new JsonResponse("Success"), HttpStatus.OK);
         } catch (Exception e) {
             log.error("Exception occurred : {} ", e.getMessage(), e);
@@ -53,7 +53,7 @@ public class UnSecuredController {
         log.info("Refresh /app/availability/Alert/" + id);
 
         try {
-            service.refreshAvl(id, true);
+            //service.refreshAvl(id, true);
             return new ResponseEntity(new JsonResponse("Success"), HttpStatus.OK);
         } catch (Exception e) {
             log.error("Exception occurred : {} ", e.getMessage(), e);

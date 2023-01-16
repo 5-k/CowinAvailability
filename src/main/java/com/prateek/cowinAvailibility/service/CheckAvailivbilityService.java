@@ -54,19 +54,20 @@ public class CheckAvailivbilityService {
 
     private ObjectMapper mapper = new ObjectMapper();
 
-    @Autowired
-    private ReddisCacheConfig reddisCacheConfig;
+    //@Autowired
+    //private ReddisCacheConfig reddisCacheConfig;
 
-    @Autowired
-    private StringRedisTemplate redisTemplate;
+    //@Autowired
+    //private StringRedisTemplate redisTemplate;
 
     @Autowired
     private MetricsRepo metricsRepo;
 
     public void forceRunCron() {
-        checkContiniousAVL();
+        //checkContiniousAVL();
     }
 
+    /*
     //@Scheduled(cron = "${app.checkAVLCronJob}")
     public void checkContiniousAVL() {
 
@@ -232,4 +233,5 @@ public class CheckAvailivbilityService {
         }
         return true;
     }
+    */
 }

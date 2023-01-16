@@ -6,18 +6,17 @@ import java.util.List;
 
 import javax.annotation.PreDestroy;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
+
 import com.prateek.cowinAvailibility.entity.TelegramChatHistory;
 import com.prateek.cowinAvailibility.repo.TelegramChatHistoryRepo;
 import com.prateek.cowinAvailibility.utility.Utils;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-//@Component("ChatBotLogger")
+@Component("ChatBotLogger")
 public class ChatBotLogger implements IChatBotLogger {
 
     @Autowired

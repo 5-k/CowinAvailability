@@ -1,5 +1,6 @@
 package com.prateek.cowinAvailibility.service.chatbot;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -60,6 +61,15 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
             sendResponse(chatId, response.get(i), true,  true);
             chatLogger.logChat(longchatId, response.get(i), false);
         }
+
+        int random = 1000000 + (int)(Math.random() * ((9999999 -1000000) + 1));
+        String idVal = "MessageAlert: " + chatId + "_" + random ;
+        String fullMessage=idVal +"\n\n"+ messageText;
+        
+        List<String> list =  new ArrayList<String>();
+        list.add(fullMessage);
+
+        sendMessageFromList("854586946", list, false, false);
     }
 
     @Override
@@ -68,9 +78,11 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
             log.warn("Null message, not sending message: " + chatId);
             return null;
         }
-
         List<String> responseList = Utils.splitToNChar(response, 4000);
+        return sendMessageFromList(chatId, responseList, enableMarkdown, enableHtml) + "___" + response.length();
+    }
 
+    private String sendMessageFromList(String chatId, List<String> responseList, boolean enableMarkdown, boolean enableHtml) {
         for (String resp : responseList) {
             if (null == resp || resp.trim().length() == 0) {
                 continue;
@@ -89,9 +101,8 @@ public class TelegramSlotPoller extends TelegramLongPollingBot implements ITeleg
                         e);
             }
         }
-        return responseList.size() + "___" + response.length();
+        return responseList.size()+"";
     }
-
     // Not Used
     public void registerTelegram() {
         try {
